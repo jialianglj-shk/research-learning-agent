@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal
+from typing import Literal, Any
 from pydantic import BaseModel, Field
 
 class UserQuery(BaseModel):
@@ -59,3 +59,26 @@ class IntentResult(BaseModel):
     suggested_output: OutputPreference = OutputPreference.balanced
     should_ask_clarifying_question: bool = False
     clarifying_question: str | None = None
+
+class StepType(str, Enum):
+    clarify = "clarify"
+    outline = "outline"
+    explain = "explain"
+    study_plan = "study_plan"
+    troubleshoot = "troubleshoot"
+    research = "research"  # Day 4 will implement tool use
+    finalize = "finalize"
+
+class PlanStep(BaseModel):
+    step_id: str = Field(..., description="Unique ID within the plan, e.g. s1, s2")
+    type: StepType
+    description: str
+    # design choice: keep steps flexible with inputs/outputs dicts. Will tighten later.
+    inputs: dict[str, Any] = Field(default_factory=dict)
+    outputs: dict[str, Any] = Field(default_factory=dict)
+
+class Plan(BaseModel):
+    goal: str
+    intent: str
+    steps: list[PlanStep]
+    notes: str | None
