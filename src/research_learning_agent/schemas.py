@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Literal
 from pydantic import BaseModel, Field
 
@@ -26,3 +27,35 @@ class LLMMessage(BaseModel):
     role: str
     content: str
 
+class UserLevel(str, Enum):
+    beginner = "beginner"
+    intermediate = "intermediate"
+    advanced = "advanced"
+
+class LearningIntent(str, Enum):
+    casual_curiosity = "casual_curiosity"
+    guided_study = "guided_study"
+    professional_research = "professional_research"
+    urgent_troubleshooting = "urgent_troubleshooting"
+
+class OutputPreference(str, Enum):
+    concise = "concise"
+    balanced  = "balanced"
+    detailed = "detailed"
+
+class UserProfile(BaseModel):
+    user_id: str = Field(..., description="Identifier for a local user profile.")
+    background: str = Field(..., description="User background summary (free text).")
+    level: UserLevel = Field(..., description="Self-reported knowledge level.")
+    goals: str = Field(..., description="What the user wants to achieve with this assistant.")
+    preferred_output: OutputPreference = Field(default=OutputPreference.balanced)
+    preferred_resources: list[str] = Field(default_factory=list, description="e.g. ['videos', 'papers', 'docs']")
+    notes: str | None = None
+
+class IntentResult(BaseModel):
+    intent: LearningIntent
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    rationale: str = Field(..., description="Brief reason for classification (1-2 sentences).")
+    suggested_output: OutputPreference = OutputPreference.balanced
+    should_ask_clarifying_question: bool = False
+    clarifying_question: str | None = None
