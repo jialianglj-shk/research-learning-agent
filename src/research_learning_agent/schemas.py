@@ -82,3 +82,7 @@ class Plan(BaseModel):
     intent: str
     steps: list[PlanStep]
     notes: str | None
+
+class OrchestratorAction(BaseModel):
+    kind: Literal["final", "need_clarification"]
+    clarifying_question: str | None = None
