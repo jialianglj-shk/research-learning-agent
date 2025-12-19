@@ -2,11 +2,15 @@
 
 This project is designed as a **modular agentic AI system** that evolves incrementally.
 
-## Week 1 Architecture (Current)
+## Day 2 Architecture (Current)
 
 User (CLI)\
 ↓\
-SimpleAgent\
+Profile Loader / Onboarding\
+↓\
+Intent Classifier (LLM-based)\
+↓\
+SimpleAgent (adaptive prompting)\
 ↓\
 LLMClient (OpenAI)\
 ↓\
@@ -19,17 +23,27 @@ Structured Response
   - CLI entry point
   - Handles user interaction and rendering
 
+- **User Profile**
+  - Captures background, goals, level, and preferences
+  - Persisted locally for reuse across sessions
+
+- **Intent Classifier**
+  - LLM-based classification with structured JSON output
+  - Determines learning intent and suggested response style
+
 - **SimpleAgent**
-  - Single-step reasoning agent
-  - Formats prompts and parses structured output
+  - Adapts prompts based on profile + intent
+  - Produces consistent, structured outputs
 
 - **LLMClient**
   - Thin abstraction over OpenAI Chat Completions
   - Centralized model configuration
 
-- **Schemas (Pydantic)**
-  - Typed request/response contracts
-  - Foundation for future planning, memory, and tool use
+- **Schemas**
+  - Pydantic models enforce contracts between components
+  - Enables safe evolution of agent behavior
+
+This architecture emphasizes **clarity, inspectability, and incremental evlution**.
 
 ## Design Principles
 
@@ -38,12 +52,5 @@ Structured Response
 - Architecture first, features second
 - Designed for incremental agent evolution
 
-## Planned Extensions
-
-- Intent classification & user profiling
-- Multi-step planning and reasoning
-- Tool use (web, documents, video)
-- Long-term memory and personalization
-- Web-based UI
 
 
