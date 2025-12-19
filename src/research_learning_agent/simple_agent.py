@@ -1,23 +1,34 @@
-from .schemas import UserQuery, AgentAnswer, LLMMessage
+from .schemas import UserQuery, AgentAnswer, LLMMessage, UserProfile, IntentResult
 from .llm_client import LLMClient
 from .config import get_llm_config
 
-SYSTEM_PROMPT = """
+
+def build_system_prompt(profile: UserProfile, intent_result: IntentResult) -> str:
+    return f"""
 You are a concise, clear research and learning assistant.
 
-Given a user's question, respond in TWO parts:
+User profile:
+- background: {profile.background}
+- Level: {profile.level}
+- Goals: {profile.goals}
+- Preferred output: {profile.preferred_output}
 
-1. A short explanation (2-5 paragraphs) that teaches the concept clearly.
-2. 3-7 bullet points summarizing the key takeaways.
+Current intent classification:
+- Intent: {intent_result.intent}
+- Suggested output: {intent_result.suggested_output}
 
-Respond in the following format exactly:
+Adapt your response style accordingly:
+- casual_curiosity: friendly, intuitive, short
+- guided_study: structured, step-by-step, include a mini learning path
+- professional_research: precise, include terminology and clear framing
+- urgent_troubleshooting: actionable steps first, then brief explanation
+
+Return in this exact format:
 
 EXPLANATION:
-<your explanation here>
+<...>
 
 BULLETS:
-- point 1
-- point 2
 - ...
 """
 
@@ -28,10 +39,10 @@ class SimpleAgent:
         self.llm = LLMClient()
         self.config = get_llm_config()
     
-    def answer(self, query: UserQuery) -> AgentAnswer:
+    def answer(self, query: UserQuery, profile: UserProfile, intent: IntentResult) -> AgentAnswer:
         """Generate an answer to the user's question."""
         messages: list[LLMMessage] = [
-            LLMMessage(role="system", content=SYSTEM_PROMPT),
+            LLMMessage(role="system", content=build_system_prompt(profile=profile, intent_result=intent)),
             LLMMessage(role="user", content=f"Question: {query.question}"),
         ]
 

@@ -4,6 +4,10 @@ from openai import OpenAI
 
 from .schemas import LLMMessage
 from .config import get_llm_config
+from .logging_utils import get_logger
+
+
+logger = get_logger("LLMClient")
 
 
 class LLMClient:
@@ -19,13 +23,23 @@ class LLMClient:
     
     def chat(self, messages: list[LLMMessage]) -> str:
         """Send a list of messages to the LLM and return the the assistant's reply text."""
+        logger.debug("Sending messages to LLM:")
+        for m in messages:
+            logger.debug("ROLE=%s CONTENT=%s", m.role, m.content)
+
         completion = self.client.chat.completions.create(
             model=self.config.model_name,
             messages=[m.model_dump() for m in messages],
             temperature=self.config.temperature,
             max_tokens=self.config.max_tokens,
         )
-        return completion.choices[0].message.content
+
+        reply = completion.choices[0].message.content
+
+        logger.debug("Received raw LLM response:")
+        logger.debug(reply)
+
+        return reply
 
 
     

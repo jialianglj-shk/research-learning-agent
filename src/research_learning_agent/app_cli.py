@@ -1,19 +1,33 @@
 import sys
+import logging
 from rich.console import Console
 from rich.panel import Panel
 
 from .schemas import UserQuery
 from .simple_agent import SimpleAgent
+from .storage import ProfileStore
+from .user_profile import onboard_user
+from .intent_classifier import IntentClassifier
+
 
 console = Console()
+
 
 def main() -> None:
     console.print(
         "[bold green]Personal Research & Learning Agent[/bold green] "
-        "(Day 1 - Simple Q&A)"
+        "(Day 2- Intent and user profiling)"
     )
+
+    store = ProfileStore()
+    profile = store.load()
+    if profile is None:
+        profile = onboard_user()
+        store.save(profile)
+
     console.print("Type your question, or 'quit' to exist.\n")
 
+    intent_classifier = IntentClassifier()
     agent = SimpleAgent()
     
     while True:
@@ -29,12 +43,21 @@ def main() -> None:
         if question.lower() in {"q", "quit", "exit"}:
             console.print("Goodbye!")
             break
-            
-        query = UserQuery(question=question)
-        console.print("\n[bold yellow]Thinking...[/bold yellow]\n")
 
         try:
-            answer = agent.answer(query)
+            intent = intent_classifier.classify(question, profile)
+            console.print(f"[dim]DEBUG Intent: {intent.intent} ({intent.confidence})[/dim]")
+            if (
+                intent.should_ask_clarifying_question 
+                and getattr(intent, "clarifying_question", None)
+            ):
+                extra = console.input(f"{intent.clarifying_question}\n")
+                question = question + "\n\nAdditional context: " + extra
+
+            query = UserQuery(question=question)
+            console.print("\n[bold yellow]Thinking...[/bold yellow]\n")
+
+            answer = agent.answer(query, profile=profile, intent=intent)
         except Exception as e:
             console.print(f"[red]Error:[/red] {e}")
             continue
