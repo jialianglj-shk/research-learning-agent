@@ -13,3 +13,7 @@ wheels/
 .env
 .env.*
 !.env.example
+
+# Local data
+data/*.json
+data/*.db
