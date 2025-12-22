@@ -1,15 +1,18 @@
 import sys
 import logging
+from typing import final
 from rich.console import Console
 from rich.panel import Panel
 
-from .schemas import UserQuery
+from .schemas import UserQuery, OrchestratorActionType
 from .simple_agent import SimpleAgent
 from .storage import ProfileStore
 from .user_profile import onboard_user
 from .intent_classifier import IntentClassifier
+from .orchestrator import Orchestrator
 
 
+MAX_CLARIFY_TURNS = 2
 console = Console()
 
 
@@ -27,8 +30,7 @@ def main() -> None:
 
     console.print("Type your question, or 'quit' to exist.\n")
 
-    intent_classifier = IntentClassifier()
-    agent = SimpleAgent()
+    orchestrator = Orchestrator()
     
     while True:
         try:
@@ -45,19 +47,40 @@ def main() -> None:
             break
 
         try:
-            intent = intent_classifier.classify(question, profile)
-            console.print(f"[dim]DEBUG Intent: {intent.intent} ({intent.confidence})[/dim]")
-            if (
-                intent.should_ask_clarifying_question 
-                and getattr(intent, "clarifying_question", None)
-            ):
-                extra = console.input(f"{intent.clarifying_question}\n")
-                question = question + "\n\nAdditional context: " + extra
+            original_question = question
+            current_question = original_question
+            answer = None
+            force_final = False
 
-            query = UserQuery(question=question)
-            console.print("\n[bold yellow]Thinking...[/bold yellow]\n")
+            for turn in range(MAX_CLARIFY_TURNS + 1):
+                result = orchestrator.run(UserQuery(question=current_question), profile, force_final=False)
 
-            answer = agent.answer(query, profile=profile, intent=intent)
+                if result.action.kind == OrchestratorActionType.final:
+                    # Able to generate final answer
+                    answer = result.answer
+                    break
+
+                # Clarification required
+                cq = result.action.clarifying_question
+                extra_user_input = console.input(f"\n[bold magenta]Clarify:[/bold magenta] {cq}\n>")
+
+                # If user provides nothing, don't loop forever 
+                if not extra_user_input:
+                    extra_user_input = "(No additional context provided.)"
+                    force_final = True
+                
+                current_question = (original_question + "\n\nAdditional context from user:\n" + extra_user_input.strip())
+
+                if force_final:
+                    break
+
+            if answer is None and (turn == MAX_CLARIFY_TURNS or force_final):
+                # Clarification is still required but force final
+                forced_question = (current_question + "\n\nProvide a best-effort answer using reasonable assumptions.")
+
+                result = orchestrator.run(UserQuery(question=forced_question), profile, force_final=True)
+                answer = result.answer
+
         except Exception as e:
             console.print(f"[red]Error:[/red] {e}")
             continue

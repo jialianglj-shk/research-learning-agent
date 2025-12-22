@@ -7,7 +7,18 @@ logger = get_logger("Generator")
 
 
 
-def build_generator_prompt(profile: UserProfile, intent_result: IntentResult, plan: Plan) -> str:
+def build_generator_prompt(profile: UserProfile, intent_result: IntentResult, plan: Plan, force_final: bool) -> str:
+    forced_instruction = ""
+    if force_final:
+        forced_instruction = """
+IMPORTANT:
+The user quedstion may still be ambiguous.
+YOU MUST:
+1) State your assumptioms explicitly (bullet list).
+2) Provide the best possible answer under those assumptions.
+3) End with ONE follow-up question to confirm or refine assumptions.    
+"""
+
     return f"""
 You are a learning/research assistant.
 
@@ -23,6 +34,8 @@ Intent:
 
 Plan:
 {plan.model_dump_json(indent=2)}
+
+{forced_instruction}
 
 Follow the plan. If a clarify step exists and missing info, ask ONE clarifying question first.
 Otherwise generate the final response.
@@ -40,8 +53,11 @@ class Generator:
     def __init__(self) -> None:
         self.llm = LLMClient()
     
-    def generate(self, query: UserQuery, profile: UserProfile, intent: IntentResult, plan: Plan) -> AgentAnswer:
-        system_prompt = build_generator_prompt(profile, intent, plan)
+    def generate(
+        self, query: UserQuery, profile: UserProfile, intent: IntentResult, 
+        plan: Plan, force_final: bool = False
+    ) -> AgentAnswer:
+        system_prompt = build_generator_prompt(profile, intent, plan, force_final)
         messages: list[LLMMessage] = [
             LLMMessage(role="system", content=system_prompt),
             LLMMessage(role="user", content=query.question),

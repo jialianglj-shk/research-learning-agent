@@ -83,6 +83,16 @@ class Plan(BaseModel):
     steps: list[PlanStep]
     notes: str | None
 
+class OrchestratorActionType(str, Enum):
+    final = "final"
+    need_clarification = "need_clarification"
+
 class OrchestratorAction(BaseModel):
-    kind: Literal["final", "need_clarification"]
+    kind: OrchestratorActionType
     clarifying_question: str | None = None
+
+class OrchestratorResult(BaseModel):
+    action: OrchestratorAction
+    answer: AgentAnswer | None = None
+    intent: IntentResult | None = None
+    plan: Plan | None = None
