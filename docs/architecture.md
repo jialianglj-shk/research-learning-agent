@@ -2,7 +2,7 @@
 
 This project is designed as a **modular agentic AI system** that evolves incrementally.
 
-## Day 2 Architecture (Current)
+## Day 3 Architecture (Planner + Orchestrator Loop)
 
 User (CLI)\
 ↓\
@@ -10,9 +10,13 @@ Profile Loader / Onboarding\
 ↓\
 Intent Classifier (LLM-based)\
 ↓\
-SimpleAgent (adaptive prompting)\
+Planner (Plan JSON)\
 ↓\
-LLMClient (OpenAI)\
+Orchestrator (control flow)
+├─ if needs clarification -> ask user enrich question -> loop back to IntentClassifier (bounded)
+└─ else continue
+↓\
+Generator -> Answer
 ↓\
 Structured Response
 
@@ -31,9 +35,12 @@ Structured Response
   - LLM-based classification with structured JSON output
   - Determines learning intent and suggested response style
 
-- **SimpleAgent**
-  - Adapts prompts based on profile + intent
-  - Produces consistent, structured outputs
+- **Orchestrator**
+  - Coordinates intent + plan -> generation pipeline
+  - Decides whether clarification is requried (intent or plan)
+  - Enforces bounded clarification turns
+  - Supports `force_final` mode to generate a best-effort answer with explicit assumptions for better user experience and robustness
+  - Returns structured results (action + debug info) for inspectability
 
 - **LLMClient**
   - Thin abstraction over OpenAI Chat Completions

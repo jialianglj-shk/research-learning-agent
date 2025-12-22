@@ -8,15 +8,16 @@ The long-term vision is to build **general agentic AI systems** that can reason,
 
 ## Project Status
 
-**Current stage:** Day 2 -- Intent-Aware & Personalized Agent
+**Current stage:** Day 3 -- Planned Execution & Clarification Loop
 
 This initial version implements a **minimal but production-quality foundation**:
 - Clean project structure
 - Modern Python tooling
 - A working CLI-based AI assistant
 - Strong typing and schemas for future expansion
+- Planning and clarification loop
 
-Later weeks will add planning, tool use, personalization, memory, and a web UI.
+Later weeks will add tool use, personalization, memory, and a web UI.
 
 ## What the Agent Does
 The agent is a CLI-based AI assistant that supports **personalized learning and research**.
@@ -29,6 +30,9 @@ Current capabilities include:
   - Guided study
   - Professional research
   - Urgent troubleshooting
+- Generates an explicit multi-step plan before answering (inspectable)
+- Runs a clarificatino loop when needed (bounded turns), then procedds
+- Falls back to best-effort answers with stated assunmptions when ambiguity remains
 - Adapts explanation style and depth based on:
   - User profile
   - Classified intent
@@ -67,19 +71,20 @@ Key Takeaways:
 
 The system is designed as a modular, schema-driven agent pipeline:
 
-User Input
+- User Input
 - Profile & Context
 - Intent Classification
-- Agent Reasoning
-- LLM Interaction
-- Structured Resposne
+- Planner (structured plan)
+- Orchestrator (clarify loop / execution control)
+- Generator (final response)
+- Structured Output
 
 Each stage is explicit and inspectable, allowing the agent to evolve incrementally toward planning, tool use, and long-term personalization.
 
 For implementation details and design rationale, see:
 - [`docs/architecture.md`](docs/architecture.md)
 
-## Running the Agent (Day 2)
+## Running the Agent (Day 3)
 
 ### Prerequisites
 - `uv` installed
@@ -105,6 +110,8 @@ On first run, the assistant will prompt for basic profile informaiton.
 
 Subsequent runs resue the saved profile automatically.
 
+The agent may ask up to a few clarifying questions before producing the final answer.
+
 
 ## Why This Project Exists
 This project is part of a longer-term transition toward **applied agentic AI**, with goals including:
@@ -119,7 +126,7 @@ Day 1 focuses on correctness, structure, and clarity -- not features.
 ## Roadmap (High-Level)
 - [x] **Day 1:** Core agent skelenton and CLI
 - [x] **Day 2:** User intent classification & profiling
-- [ ] **Day 3:** Planner module (reasoning about steps)
+- [x] **Day 3:** Planner module (reasoning about steps)
 - [ ] **Day 4:** Tool integration (web, docs, videos)
 - [ ] **Day 5:** Learning modes & teaching methods
 - [ ] **Day 6:** Personalization & memory

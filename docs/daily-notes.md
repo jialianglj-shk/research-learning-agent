@@ -57,3 +57,25 @@ Day 1 "Definition of Done"
 4. [x] They response style clearly changes between intents (you can feel it)
 5. [x] Show at least 4 saved eval scenarios in `docs/day2-eval.md`
 6. [x] README udpated: "Now supports intent classification and user profiling"
+
+## Day 3 - Planner + Orchestrator Loop
+**Goal**: build the "agent brain" (not tools):
+1. loads user profile
+2. classifies intent
+3. generates a plan
+4. executes the plan ("think steps")
+5. generates final answer
+6. print the plan (inspectable) + answer
+
+**Features:**
+- Added structured planning (Plan/StepStep schemas)
+- Added orchestrator control flow with bounded clarification loop
+- Added `force_final` fallback for assumption-based answers
+- Observability: log raw planner/generator outputs in DEBUG mode
+
+**Day 3 Definition of Done""
+1. [x] Every query produces a `plan` (stuctured steps)
+2. [x] They system run s through an **orchestrator pipeline**, not ad-hoc glue in CLI
+3. [x] Ask for clarification if required but bounded to a maximum times for better UX
+4. [x] Have `docs/day3-eval.md` with scenarios showing: user query, intent output, plan output, final response
+5. [x] Have basic logging for "what went in/out" of planner + generator (at DEBUG)
