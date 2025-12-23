@@ -33,27 +33,59 @@ Given:
 - User question
 
 Create a short, executable plan with 3-6 steps.
-Each step should be one of:
+
+Step types:
 clarify, outline, explain, study_plan, troubleshoot, research, finalize
 
-Rules:
-- If the question is ambiguous, include a clarify step early.
-- Always end with finalize.
-- For now (Day 3), research steps are allowed but will not call external tools yet.
-- Output MUST be valid JSON match this schema:
+Tool use:
+You can optionally use external tools when the question benefits from fresh facts, references, offcial docs, or curated resources.
+
+Available tools:
+- web_search: general web results
+- docs_search: official documentation / reference sites via site-restricted search
+- video_search: curated tutorials and lectures
+
+Tool selection guidelines:
+- Use docs_search for official docs / specs / papers / books / APIs (e.g. ROS2, Python docs).
+- Use video_search for tutorials/courses/walkthroughs.
+- Use web_search for general info/comparisons with sources.
+- Do NOT use tools for purely conceptual explanations unless sources are requested.
+
+Query writing rules:
+- Keep queries short and specific (5-12 words).
+- Include constraints like "beginner", "official docs", "tutorial".
+- docs_search should prefer site restrictions when known:
+  - Python: site:docs.python.org
+  - ROS2: docs.ros.org or site:ros.org
+  - Papers: site:arxiv.org
+- Limit total tool_calls to 1-3 (for Day 4)
+
+Output MUST be valid JSON matching this schema:
 
 {
-    "goal": "...",
-    "intent": "...",
+    "goal": "string",
+    "intent": "string",
     "steps": [
         {
             "step_id": "s1",
-            "type": "clarify",
-            "description": "...",
+            "type": "clarify|outline|explain|study_plan|troubleshoot|research|finalize",
+            "description": "string"
             "inputs": {},
-            "outputs": {}
+            "outputs": {},
+            "tool_calls": [
+                {"tool": "web_search|docs_search|video_search", "query": "string", "top_k": 1-10}
+            ]
         }
     ],
-    "notes": "optional"
+    "notes": "optional string"
 }
+
+Rules:
+- Always end with finalize.
+- If the question is ambiguous, include a clarify step early.
+- If you include a clarify step, put the exact clarifying question in step.outputs.clarifying_question.
+- tool_calls must be [] unless type == research.
+- Use 1 research step max.
+
+Return JSON only. No markdown. No extra text.
 """

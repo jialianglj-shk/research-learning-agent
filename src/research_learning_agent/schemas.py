@@ -60,6 +60,28 @@ class IntentResult(BaseModel):
     should_ask_clarifying_question: bool = False
     clarifying_question: str | None = None
 
+class ToolType(str, Enum):
+    web_search = "web_search"
+    docs_search = "doc_search"
+    video_search = "video_search"
+
+class ToolCall(BaseModel):
+    tool: ToolType
+    query: str
+    top_k: int = 5
+
+class ToolError(BaseModel):
+    tool: ToolType
+    query: str
+    error_type: str
+    message: str
+
+class ToolResult(BaseModel):
+    tool: ToolType
+    query: str
+    results: list[dict[str, Any]] = Field(default_factory=list)  # each: {title, url, snippet}
+    error: ToolError | None = None
+
 class StepType(str, Enum):
     clarify = "clarify"
     outline = "outline"
@@ -73,6 +95,7 @@ class PlanStep(BaseModel):
     step_id: str = Field(..., description="Unique ID within the plan, e.g. s1, s2")
     type: StepType
     description: str
+    tool_calls: list[ToolCall] = Field(default_factory=list)
     # design choice: keep steps flexible with inputs/outputs dicts. Will tighten later.
     inputs: dict[str, Any] = Field(default_factory=dict)
     outputs: dict[str, Any] = Field(default_factory=dict)
