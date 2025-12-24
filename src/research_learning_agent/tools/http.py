@@ -143,7 +143,7 @@ def request(
             logger.debug(
                 "HTTP %s %s (attempt %d/%d params=%s json=%s)", 
                 method_u, url, attempt + 1, max_retries, params,
-                (json.dump(json_body)[:400] if json_body is not None else None),
+                (json.dumps(json_body)[:400] if json_body is not None else None),
             )
 
             resp = requests.request(

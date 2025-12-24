@@ -11,6 +11,9 @@ from .user_profile import onboard_user
 from .intent_classifier import IntentClassifier
 from .orchestrator import Orchestrator
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MAX_CLARIFY_TURNS = 2
 console = Console()
@@ -92,6 +95,15 @@ def main() -> None:
             for i, bullet in enumerate(answer.bullet_summary, start=1):
                 console.print(f"  {i}. {bullet}")
         
+        if answer.sources:
+            console.print("\n[bold]Sources:[/bold]")
+            for i, src in enumerate(answer.sources, start=1):
+                console.print(f"  {i}. {src.title} | {src.url}")
+        
+        for tr in result.tool_results:
+            if tr.error:
+                console.print(f"[dim]Tool Error {tr.tool} failed: {tr.error.error_type} ({tr.query})[/dim]")
+    
         console.print("\n")
 
 

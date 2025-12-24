@@ -1,7 +1,13 @@
-from .schemas import UserQuery, AgentAnswer, UserProfile, StepType, OrchestratorActionType, OrchestratorAction, OrchestratorResult
+from __future__ import annotations
+
+from .schemas import (
+    UserQuery, AgentAnswer, UserProfile, StepType, OrchestratorActionType, 
+    OrchestratorAction, OrchestratorResult, ToolResult
+)
 from .intent_classifier import IntentClassifier
 from .planner import Planner
 from .generator import Generator
+from .tool_executor import ToolExecutor
 from .logging_utils import get_logger
 
 
@@ -12,9 +18,10 @@ class Orchestrator:
     def __init__(self) -> None:
         self.intent = IntentClassifier()
         self.planner = Planner()
+        self.tools = ToolExecutor()
         self.generator = Generator()
 
-    def run(self, query: UserQuery, profile: UserProfile, force_final: bool = False) -> OrchestratorResult:
+    def run(self, query: UserQuery, profile: UserProfile, *, force_final: bool = False) -> OrchestratorResult:
         # 1) intent
         intent_result = self.intent.classify(query.question, profile)
 
@@ -44,11 +51,26 @@ class Orchestrator:
                     )
                 )
 
-        # 4) generate final answer
-        answer = self.generator.generate(query, profile, intent_result, plan, force_final)
+        # 4) tool execution
+        tool_results: list[ToolResult] = []
+        for step in plan.steps:
+            if step.type == StepType.research:
+                tool_results.extend(self.tools.execute_step(step))
+        
+        # 5) generate final answer
+        answer = self.generator.generate(
+            query=query, 
+            profile=profile, 
+            intent=intent_result, 
+            plan=plan, 
+            tool_results=tool_results,
+            force_final=force_final,
+        )
+
         return OrchestratorResult(
             action=OrchestratorAction(kind=OrchestratorActionType.final),
             answer=answer,
             intent=intent_result,
             plan=plan,
+            tool_results=tool_results,
         )
