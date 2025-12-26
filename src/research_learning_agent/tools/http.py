@@ -9,6 +9,7 @@ from typing import Any, TypeVar, cast
 
 import requests
 from requests import Response
+from urllib.parse import urlsplit, urlunsplit
 
 from ..logging_utils import get_logger
 
@@ -28,12 +29,24 @@ class ToolHTTPError(Exception):
     url: str | None = None
     response_text: str | None = None
 
+    # ---- safe accessors ----
+
+    @property
+    def safe_url(self) -> str | None:
+        return _sanitize_url(self.url)
+
+    @property
+    def safe_response_text(self) -> str | None:
+        return _truncate(self.response_text)
+    
+    # ---- string representation ----
+    
     def __str__(self) -> str:
         base = f"{self.error_type} error: {self.message}"
         if self.status_code is not None:
             base += f" (status={self.status_code})"
-        if self.url:
-            base += f" (url={self.url})"
+        if self.safe_url:
+            base += f" (url={self.safe_url})"
         return base
 
 
@@ -70,13 +83,88 @@ def _env_float(name: str, default: float) -> float:
     """Get an environment variable as a float, returning default if missing or invalid."""
     return _env_number(name, default, float)
 
+def _bool_env(name: str, default: bool = False) -> bool:
+    """Get an environment variable as a boolean, returning default if missing or invalid."""
+    v = os.getenv(name)
+    if v is None:
+        return default
+    return v.strip().lower() in {"1", "true", "yes", "y", "on"}
+
 
 DEFAULT_TIMEOUT_SECONDS = _env_float("TOOL_TIMEOUT_SECONDS", 12.0)
 DEFAULT_MAX_RETRIES = _env_int("TOOL_MAX_RETRIES", 2)
 
+# Off by default. Enable locally only if needed.
+LOG_HTTP_REDACTED_BODY = _bool_env("LOG_HTTP_REDACTED_BODY", default=False)
+
 # Backoof settings (keep conservative for Days 4)
 BACKOFF_BASE_SECONDS = 0.6
 BACKOFF_MAX_SECONDS = 6.0
+
+_MAX_TEXT_LEN = 500
+
+
+# ---------------------------------
+# Logging safety helpers
+# ---------------------------------
+SENSITIVE_KEY_SUBSTRINGS = (
+    "authorization", "api_key", "apikey", "x-api-key", "token",
+    "access_token", "resfresh_token", "client_secret", "password", "secret"
+)
+
+def _truncate(text: str | None, limit: int = _MAX_TEXT_LEN) -> str | None:
+    if not text:
+        return None
+    return text[:limit]
+
+def _sanitize_url(url: str) -> str:
+    """Drop query string to avoid leaking secrets in URL params."""
+    try:
+        parts = urlsplit(url)
+        return urlunsplit((parts.schema, parts.netloc, parts.path, "", ""))  # no query/fragment
+    except Exception:
+        return url
+
+def _redect_obj(obj: object) -> object:
+    """Recursively redact sensitive values in dicts/lists based on key substrings."""
+    if isinstance(obj, dict):
+        out = {}
+        for k, v in obj.items():
+            ks = str(k).lower()
+            if any(s in ks for s in SENSITIVE_KEY_SUBSTRINGS):
+                out[k] = "***REDACTED***"
+            else:
+                out[k] = _redect_obj(v)
+        return out
+    if isinstance(obj, list):
+        return [_redect_obj(v) for v in obj]
+    return obj
+
+def _safe_json_keys(json_body: object, limit: int = 25) -> list[str] | None:
+    """Return a list of safe JSON keys, sorted alphabetically, up to limit."""
+    if isinstance(json_body, dict):
+        keys = [str(k) for k in json_body.keys()]
+        keys.sort()
+        return keys[:limit]
+    return None
+
+def _safe_params_keys(params: object, limit: int = 25) -> list[str] | None:
+    """Return a list of safe URL params keys, sorted alphabetically, up to limit."""
+    if isinstance(params, dict):
+        keys = [str(k) for k in params.keys()]
+        keys.sort()
+        return keys[:limit]
+    return None
+
+def _safe_body_preview(json_body: object, limit_chars: int = 400) -> str | None:
+    """Return a redected, truncated JSON string if enabled by env."""
+    if not LOG_HTTP_REDACTED_BODY or json_body is None:
+        return None
+    try:
+        safe = _redect_obj(json_body)
+        return json.dumps(safe)[:limit_chars]
+    except Exception:
+        return "<unserializable json_body>"
 
 
 # ---------------------------------
@@ -141,9 +229,14 @@ def request(
     for attempt in range(max_retries):
         try:
             logger.debug(
-                "HTTP %s %s (attempt %d/%d params=%s json=%s)", 
-                method_u, url, attempt + 1, max_retries, params,
-                (json.dumps(json_body)[:400] if json_body is not None else None),
+                "HTTP %s %s attempt=%d/%d params_keys=%s json_keys=%s json_preview=%s",
+                method_u,
+                _sanitize_url(url),
+                attempt + 1,
+                max_retries,
+                _safe_params_keys(params),
+                _safe_json_keys(json_body),
+                _safe_body_preview(json_body),     
             )
 
             resp = requests.request(
