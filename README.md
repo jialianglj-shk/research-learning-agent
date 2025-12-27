@@ -36,10 +36,15 @@ Current capabilities include:
 - Adapts explanation style and depth based on:
   - User profile
   - Classified intent
-- Users structured schemas to ensure inspectable, debuggable behavior
+- Use structured schemas to ensure inspectable, debuggable behavior
+- Plans research steps with explicit tool calls (web_search, docs_search, video_search)
+- Executes tool calls (Serper + YouTube; web fallback Serper -> DDG IA)
+- Generates answers grounded in retrieved evidence
+- Attaches sources deterministically from tool results (no LLM-generated citations)
 - Returns:
   - A clear explanation
   - A concise bullet-point summary
+  - A sources section
 
 The assistant is designed to evolve incrementally into a fully agentic system with planning, tool use, and long-term memory.
 
@@ -56,7 +61,10 @@ Explanation:
 Key Takeaways:
 1. ...
 2. ...
-3. ...
+
+Sources:
+1. ...
+2. ...
 ```
 
 ## Tech Stack
@@ -76,6 +84,7 @@ The system is designed as a modular, schema-driven agent pipeline:
 - Intent Classification
 - Planner (structured plan)
 - Orchestrator (clarify loop / execution control)
+- ToolExecutor
 - Generator (final response)
 - Structured Output
 
@@ -84,7 +93,7 @@ Each stage is explicit and inspectable, allowing the agent to evolve incremental
 For implementation details and design rationale, see:
 - [`docs/architecture.md`](docs/architecture.md)
 
-## Running the Agent (Day 3)
+## Running the Agent (Day 4)
 
 ### Prerequisites
 - `uv` installed
@@ -98,8 +107,15 @@ uv sync
 ```
 Create a `.env` file:
 ```env
-OPENAI_API_KEY=your_api_key_here
+# mandatory:
+OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4.1-mini
+SERPER_API_KEY=
+YOUTUBE_API_KEY=
+
+# optional:
+TOOL_TIMEOUT_SECONDS
+TOOL_MAX_RETRIES
 ```
 
 ### Run
@@ -111,6 +127,13 @@ On first run, the assistant will prompt for basic profile informaiton.
 Subsequent runs resue the saved profile automatically.
 
 The agent may ask up to a few clarifying questions before producing the final answer.
+
+## Tools
+
+- **Web search**: Serper (primary), DuckDuckGo Instant Answer (fallback)
+- **Video search**: YouTube Data API v3
+- **Docs search**: Serper with `site:` queries (e.g., `site:docs.python.org`,`site:docs.ros.org`)
+- **Failure handling**: timeouts + retries; tool failures don't crash the agent
 
 
 ## Why This Project Exists

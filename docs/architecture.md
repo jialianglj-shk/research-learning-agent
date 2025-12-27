@@ -12,11 +12,13 @@ Intent Classifier (LLM-based)\
 ↓\
 Planner (Plan JSON)\
 ↓\
-Orchestrator (control flow)
-├─ if needs clarification -> ask user enrich question -> loop back to IntentClassifier (bounded)
-└─ else continue
+Orchestrator (control flow)\
+├─ if needs clarification -> ask user enrich question -> loop back to IntentClassifier (bounded)\
+└─ else continue\
 ↓\
-Generator -> Answer
+ToolExecutor (only for research steps)\
+↓\
+Generator -> Answer (+Sources)\
 ↓\
 Structured Response
 
@@ -34,6 +36,15 @@ Structured Response
 - **Intent Classifier**
   - LLM-based classification with structured JSON output
   - Determines learning intent and suggested response style
+
+- **Planner**
+  - Generates multi-step plan to answer user's query, considering user profile and additional clariying context
+  - Decides what tool to use
+  - Only include tool use for research steps
+
+- **Tool Executor**
+  - Execute tool calls
+  - Handle tool errors gracefully
 
 - **Orchestrator**
   - Coordinates intent + plan -> generation pipeline
@@ -59,5 +70,17 @@ This architecture emphasizes **clarity, inspectability, and incremental evlution
 - Architecture first, features second
 - Designed for incremental agent evolution
 
+## Tool Use
+
+### Grounding and Sources
+- Tool results are the single source of truth for citations
+- Generator receives _evidence snippets_ but does not output URLs
+- `Sources` in agent asnwer is built from actual tool calling results, not from LLM answer
+
+### Failure model
+- tools uses timeout + retries
+- tool failure yields `ToolResult.error`
+- agent contintues and answer best-effort
+- CLI prints tool errors (for debug)
 
 
