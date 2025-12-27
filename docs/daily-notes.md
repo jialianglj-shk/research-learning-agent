@@ -79,3 +79,25 @@ Day 1 "Definition of Done"
 3. [x] Ask for clarification if required but bounded to a maximum times for better UX
 4. [x] Have `docs/day3-eval.md` with scenarios showing: user query, intent output, plan output, final response
 5. [x] Have basic logging for "what went in/out" of planner + generator (at DEBUG)
+
+## Day 4 - tool integration
+**Goal:**\
+Enable the agent to:
+1. Dicide when external informaiton is needed
+2. Select appropriate tools (web, docs, videos)
+3. Execute tool calls
+4. Incorporate retrieved evidence into the final answer
+5. Expose sources transparently
+
+> The planner decides _what to do_
+> The orchestrator decides _when to act_
+> Tools do _one thing well_
+
+**Day 4 Definition of Done**
+1. [x] Agent can call **external tools**
+2. [x] Planner includes `research` steps that map to tools
+3. [x] Tool cals are **explicit, logged, inspectable**
+4. [x] Show sources sued (URLs/titles)
+5. [x] Agent still works **whithout tools** when not needed
+6. [x] Tool failures are handled gracefully, not crashing the agent
+7. [x] `docs/day4-eval.md` shows evidence-based answers
