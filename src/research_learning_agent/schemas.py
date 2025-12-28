@@ -147,3 +147,7 @@ class OrchestratorResult(BaseModel):
     plan: Plan | None = None
     tool_results: list[ToolResult] = Field(default_factory=list)
 
+class GenerationSpec(BaseModel):
+    mode: LearningMode
+    required_sections: list[str]
+    style_notes: str # short instruction for the generators
