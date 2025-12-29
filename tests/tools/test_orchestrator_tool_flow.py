@@ -44,7 +44,7 @@ class CaptureGenerator:
     def __init__(self):
         self.last_tool_results = None
 
-    def generate(self, *, query, profile, intent, plan, tool_results, force_final=False):
+    def generate(self, *, query, profile, intent, plan, tool_results, spec, force_final=False):
         self.last_tool_results = tool_results
         return AgentAnswer(
             explanation="ok",

@@ -8,6 +8,7 @@ from .intent_classifier import IntentClassifier
 from .planner import Planner
 from .generator import Generator
 from .tool_executor import ToolExecutor
+from .pedagogy import Pedagogy
 from .logging_utils import get_logger
 
 
@@ -19,6 +20,7 @@ class Orchestrator:
         self.intent = IntentClassifier()
         self.planner = Planner()
         self.tools = ToolExecutor()
+        self.pedagogy = Pedagogy()
         self.generator = Generator()
 
     def run(self, query: UserQuery, profile: UserProfile, *, force_final: bool = False) -> OrchestratorResult:
@@ -57,13 +59,18 @@ class Orchestrator:
             if step.type == StepType.research:
                 tool_results.extend(self.tools.execute_step(step))
         
-        # 5) generate final answer
+        # 5) pedagogy
+        mode = self.pedagogy.choose_mode(intent_result, profile)
+        spec = self.pedagogy.build_spec(mode, profile)
+        
+        # 6) generate final answer
         answer = self.generator.generate(
             query=query, 
             profile=profile, 
             intent=intent_result, 
             plan=plan, 
             tool_results=tool_results,
+            spec=spec,
             force_final=force_final,
         )
 
