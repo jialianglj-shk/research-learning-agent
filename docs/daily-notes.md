@@ -101,3 +101,25 @@ Enable the agent to:
 5. [x] Agent still works **whithout tools** when not needed
 6. [x] Tool failures are handled gracefully, not crashing the agent
 7. [x] `docs/day4-eval.md` shows evidence-based answers
+
+## Day 5 - Learning Modes & Answer styles (pedagogy)
+
+**Goal:**\
+Agent can adapt to different answer style based on user intent and profile.
+
+**High-level flow**
+1. Orchestrator runs intent + plan (existing)
+2. ToolExecutor runs tool_calls (existing)
+3. **Pedagogy decides mode and builds a "generation spec"**
+4. **Generator uses the spec to produce output sections required by the mode**
+5. System attaches sources from ToolResults (existing)
+
+**Day 5 Definition of Done**
+1. [x] Agent selects a **Learning Mode** based on **intent + profile**
+2. [x] Agent produces mode-specific structured outputs:
+  - [x] **Quick Explain**: explanation + bullets + analogy + "next steps"
+  - [x] **Guided Study**: 7-10 day plan with daily topics + resources
+  - [x] **Deep Research**: executive summary + key concepts + reading list (papers/docs) + "open questions"
+  - [x] **Fix My Problem**: diagnosis checklist + step-by-step plan + verification steps
+3. [x] Mode selection and output are **deterministic & testable** (mode is not "whatever the LLM feels like")
+4. [x] `docs/day5-eval.md` shows evidence-based answers

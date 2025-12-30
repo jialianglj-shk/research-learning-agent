@@ -18,7 +18,9 @@ Orchestrator (control flow)\
 ↓\
 ToolExecutor (only for research steps)\
 ↓\
-Generator -> Answer (+Sources)\
+Pedagogy (mode/spec)
+↓\
+Generator -> Answer (sectioned output + sources)\
 ↓\
 Structured Response
 
@@ -45,6 +47,12 @@ Structured Response
 - **Tool Executor**
   - Execute tool calls
   - Handle tool errors gracefully
+
+- **Pedagogy**
+  - Deterministic learning intent -> learning mode mapping
+  - learning mode -> generation spec mapping
+  - spec-driven generation
+  - parseable output format
 
 - **Orchestrator**
   - Coordinates intent + plan -> generation pipeline

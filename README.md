@@ -8,7 +8,7 @@ The long-term vision is to build **general agentic AI systems** that can reason,
 
 ## Project Status
 
-**Current stage:** Day 3 -- Planned Execution & Clarification Loop
+**Current stage:** Day 5 -- Integrating Learning Modes & Answer Styles
 
 This initial version implements a **minimal but production-quality foundation**:
 - Clean project structure
@@ -16,8 +16,10 @@ This initial version implements a **minimal but production-quality foundation**:
 - A working CLI-based AI assistant
 - Strong typing and schemas for future expansion
 - Planning and clarification loop
+- Tool use and evidence citations
+- Adapting asnwer style and sepc based on learning intent
 
-Later weeks will add tool use, personalization, memory, and a web UI.
+Later weeks will add memory, and a web UI.
 
 ## What the Agent Does
 The agent is a CLI-based AI assistant that supports **personalized learning and research**.
@@ -41,9 +43,12 @@ Current capabilities include:
 - Executes tool calls (Serper + YouTube; web fallback Serper -> DDG IA)
 - Generates answers grounded in retrieved evidence
 - Attaches sources deterministically from tool results (no LLM-generated citations)
+- Intent-driven **Learning Modes**
+- Mode outputs: Quick Explain / Guided Study / Deep Research / Fix my Problem
 - Returns:
   - A clear explanation
   - A concise bullet-point summary
+  - A sections section with different spec based on learning mode
   - A sources section
 
 The assistant is designed to evolve incrementally into a fully agentic system with planning, tool use, and long-term memory.
@@ -58,9 +63,13 @@ Do you want a concise overview or detailed explanation?
 Explanation:
 <2–5 paragraph explanation>
 
-Key Takeaways:
+Bullets:
 1. ...
 2. ...
+
+Sections:
+<section 1>
+<section 2>
 
 Sources:
 1. ...
@@ -85,6 +94,7 @@ The system is designed as a modular, schema-driven agent pipeline:
 - Planner (structured plan)
 - Orchestrator (clarify loop / execution control)
 - ToolExecutor
+- Pedogagy (decide asnwer spec)
 - Generator (final response)
 - Structured Output
 
@@ -150,7 +160,7 @@ Day 1 focuses on correctness, structure, and clarity -- not features.
 - [x] **Day 1:** Core agent skelenton and CLI
 - [x] **Day 2:** User intent classification & profiling
 - [x] **Day 3:** Planner module (reasoning about steps)
-- [ ] **Day 4:** Tool integration (web, docs, videos)
+- [x] **Day 4:** Tool integration (web, docs, videos)
 - [ ] **Day 5:** Learning modes & teaching methods
 - [ ] **Day 6:** Personalization & memory
 - [ ] **Day 7:** Orchestration + web UI
