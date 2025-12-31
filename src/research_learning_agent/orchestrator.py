@@ -27,22 +27,19 @@ class Orchestrator:
         # 1) intent
         intent_result = self.intent.classify(query.question, profile)
 
-        # 2) plan
-        plan = self.planner.create_plan(query.question, profile, intent_result)
-
-        # 3) clarification decision (skipped if force_final)
+        # 2) clarification decision (skipped if force_final)
         if not force_final:
             # 3.1 Prefer intent clarifying question if available
             cq = getattr(intent_result, "clarifying_question", None)
             needs_clarify = bool(intent_result.should_ask_clarifying_question and cq)
 
-            # 3.2 Fallback: plan contains clarify step
-            if not needs_clarify:
-                for step in plan.steps:
-                    if step.type.value == StepType.clarify:
-                        cq = step.outputs.get("calrifying_question")
-                        needs_clarify = True
-                        break
+            # # 3.2 Fallback: plan contains clarify step
+            # if not needs_clarify:
+            #     for step in plan.steps:
+            #         if step.type.value == StepType.clarify:
+            #             cq = step.outputs.get("calrifying_question")
+            #             needs_clarify = True
+            #             break
             
             # 3.3 Return clarifying question
             if needs_clarify:
@@ -52,6 +49,9 @@ class Orchestrator:
                         clarifying_question=cq
                     )
                 )
+
+        # 3) plan
+        plan = self.planner.create_plan(query.question, profile, intent_result)
 
         # 4) tool execution
         tool_results: list[ToolResult] = []
