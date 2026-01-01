@@ -85,6 +85,7 @@ class IntentResult(BaseModel):
     suggested_output: OutputPreference = OutputPreference.balanced
     should_ask_clarifying_question: bool = False
     clarifying_question: str | None = None
+    use_llm: bool = False
 
 class ToolType(str, Enum):
     web_search = "web_search"

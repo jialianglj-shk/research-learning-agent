@@ -159,6 +159,7 @@ class IntentClassifier:
                 suggested_output="balanced" if rule_intent != LearningIntent.urgent_troubleshooting else "detailed",
                 should_ask_clarifying_question=rule_conf < 0.65 and rule_intent not in {LearningIntent.urgent_troubleshooting},
                 clarifying_question=_intent_clarifier(rule_intent, rule_conf, user_question),
+                use_llm=False,
             )
 
             logger.debug("Rule-based IntentResult:")
@@ -168,6 +169,7 @@ class IntentClassifier:
                 "query": user_question[:200],
                 "intent": result.intent,
                 "confidence": result.confidence,
+                "use_llm": result.use_llm,
                 "should_ask_clarifying_question": result.should_ask_clarifying_question,
                 "suggested_output": result.suggested_output,
                 # optional for debugging (safe):
@@ -201,6 +203,7 @@ class IntentClassifier:
             "query": user_question[:200],
             "intent": llm_result.intent,
             "confidence": llm_result.confidence,
+            "use_llm": llm_result.use_llm,
             "should_ask_clarifying_question": llm_result.should_ask_clarifying_question,
             "suggested_output": llm_result.suggested_output,
             # optional for debugging (safe):
@@ -232,6 +235,7 @@ User goals: {profile.goals}
         logger.debug(parsed)
 
         intent = IntentResult.model_validate(parsed)
+        intent.use_llm = True
         
         logger.debug("Validated IntentResult:")
         logger.debug(intent.model_dump())
