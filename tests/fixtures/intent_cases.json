@@ -1,0 +1,28 @@
+[
+    {"id": "c01", "query": "What is reinforcement learning?", "expected_intent": "casual_curiosity"},
+    {"id": "c02", "query": "How does a transformer model work?", "expected_intent": "casual_curiosity"},
+    {"id": "c03", "query": "Explain the difference between supervised and unsupervised learning.", "expected_intent": "casual_curiosity"},
+    {"id": "c04", "query": "What is ROS2?", "expected_intent": "casual_curiosity"},
+    {"id": "c05", "query": "How does backpropagation work at a high level?", "expected_intent": "casual_curiosity"},
+  
+    {"id": "g01", "query": "How should I learn reinforcement learning from scratch?", "expected_intent": "guided_study"},
+    {"id": "g02", "query": "Create a 7-day study plan to learn transformers.", "expected_intent": "guided_study"},
+    {"id": "g03", "query": "What's a good roadmap to study robotics software engineering?", "expected_intent": "guided_study"},
+    {"id": "g04", "query": "Can you suggest a structured way to learn control theory?", "expected_intent": "guided_study"},
+    {"id": "g05", "query": "What courses should I follow to learn ROS2 properly?", "expected_intent": "guided_study"},
+  
+    {"id": "r01", "query": "Compare PPO and SAC with references.", "expected_intent": "professional_research"},
+    {"id": "r02", "query": "What are the trade-offs between model predictive control and reinforcement learning?", "expected_intent": "professional_research"},
+    {"id": "r03", "query": "Survey recent approaches to diffusion policies in robotics.", "expected_intent": "professional_research"},
+    {"id": "r04", "query": "What is the current state of the art in sim-to-real transfer?", "expected_intent": "professional_research"},
+    {"id": "r05", "query": "Analyze the limitations of end-to-end RL for real-world robotics.", "expected_intent": "professional_research"},
+  
+    {"id": "t01", "query": "I get ModuleNotFoundError when running uv run python, how do I fix this?", "expected_intent": "urgent_troubleshooting"},
+    {"id": "t02", "query": "My Python script crashes with KeyError when accessing a dict.", "expected_intent": "urgent_troubleshooting"},
+    {"id": "t03", "query": "Docker container exits immediately with no logs, what could be wrong?", "expected_intent": "urgent_troubleshooting"},
+    {"id": "t04", "query": "This pytest test fails with AssertionError after refactoring, how do I debug it?", "expected_intent": "urgent_troubleshooting"},
+  
+    {"id": "a01", "query": "Help me with reinforcement learning.", "expected_intent": "casual_curiosity", "note": "Ambiguous: should ask clarifying question"},
+    {"id": "a02", "query": "I need to understand transformers better.", "expected_intent": "casual_curiosity", "note": "Ambiguous: should ask clarifying question"}
+]
+  

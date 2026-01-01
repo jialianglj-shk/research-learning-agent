@@ -1,0 +1,22 @@
+{
+  "total": 21,
+  "correct": 21,
+  "accuracy": 1.0,
+  "clarify_rate": 0.1905,
+  "avg_confidence": 0.7105,
+  "use_llm_rate": 0.3333,
+  "confusion_by_expected": {
+    "casual_curiosity": {
+      "casual_curiosity": 7
+    },
+    "guided_study": {
+      "guided_study": 5
+    },
+    "professional_research": {
+      "professional_research": 5
+    },
+    "urgent_troubleshooting": {
+      "urgent_troubleshooting": 4
+    }
+  }
+}
