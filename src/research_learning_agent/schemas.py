@@ -152,3 +152,39 @@ class GenerationSpec(BaseModel):
     mode: LearningMode
     required_sections: list[str]
     style_notes: str # short instruction for the generators
+
+class ExplanationStyle(str, Enum):
+    examples = "examples"
+    formulas = "formulas"
+    balanced = "balanced"
+
+class ResourcePreference(str, Enum):
+    video = "video"
+    text = "text"
+    mixed = "mixed"
+
+class Verbosity(str, Enum):
+    concise = "concise"
+    balanced = "balanced"
+    detailed = "detailed"
+
+class UserPreferences(BaseModel):
+    explanation_style: ExplanationStyle = ExplanationStyle.balanced
+    resource_preference: ResourcePreference = ResourcePreference.mixed
+    verbosity: Verbosity = Verbosity.balanced
+
+class MemoryItem(BaseModel):
+    ts: str  # ISO datetime string
+    query: str
+    topic: str
+    intent: str
+    mode: LearningMode
+    summary: str = "" # short summary of what user learned
+    followed_up: bool = False # whether user asked a follow-up question
+
+class UserMemory(BaseModel):
+    user_id: str = "default"
+    topics: list[str] = Field(default_factory=list)  # unique recent topics
+    history: list[MemoryItem] = Field(default_factory=list)  # recent N items
+    preferences: UserPreferences = Field(default_factory=UserPreferences)
+    last_topic: str | None = None
