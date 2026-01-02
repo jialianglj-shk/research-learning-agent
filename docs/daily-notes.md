@@ -123,3 +123,48 @@ Agent can adapt to different answer style based on user intent and profile.
   - [x] **Fix My Problem**: diagnosis checklist + step-by-step plan + verification steps
 3. [x] Mode selection and output are **deterministic & testable** (mode is not "whatever the LLM feels like")
 4. [x] `docs/day5-eval.md` shows evidence-based answers
+
+## Day 6 - Personalization & Context Adaptation
+
+**Goal:**\
+Make it feel like the agent knows the user over time
+
+**Approach:**\
+Enhance user_profile + add memory
+
+**Features:**
+- Track topics the user has studied (e.g., "RL basics", "transformers")
+- Track:
+  - preferred explanation style (examples vs formulas)
+  - preferred resource types (videos vs text)
+- Use this context in prompts:
+  - "User has already studied X and prefers examples and diagrams. Avoid repeating basics."
+
+**Behavior examples:**
+- If user previously studied "neural networks basics," and now asks "What is backprop?", agent:
+  - Skips super-basic "what is neuron" explanation
+  - Goes a bit deeper
+- Suggests follow-up topics:
+  - "Last time you studied RL. Want to connect this new topic to RL?"
+
+**End of Day 6:"
+- Have a **persistent, evolving personal tutor**, not just a one-off answer bot.
+
+**Day 6 - Definition of Done**
+1. [ ] Persistent **user memory** implemented (topics, history, preferences)
+2. [ ] Memory stored locally and **survivces multiple runs**
+3. [ ] Orchestrator:
+  - loads memory at start
+  - injects memory context into generator
+  - updates and saves memory after final answer
+4. [ ] Generator output is **memory-aware**:
+  - avoids repeating basics for known topics
+  - adpats tone/style using stored preferences
+5. [ ] User preferences inferred deterministically (examples vs formulas, video vs text, concise vs detailed)
+6. [ ] Context-aware **follow-up suggestions** generated when applicable
+7. [ ] Unit tests added for(memory store, memory update logic, preference inference)
+8. [ ] Integration test confirm:
+ - memory passed through orchestrator -> generator
+ - memory updated after interaction
+9. [ ] all existing tests pass
+10. [ ] Docs updated: `architectured.md`, `README.md`, `day6_eval.md`
