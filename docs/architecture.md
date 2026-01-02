@@ -36,7 +36,9 @@ Structured Response
   - Persisted locally for reuse across sessions
 
 - **Intent Classifier**
-  - LLM-based classification with structured JSON output
+  - Queyr > profile.
+  - Two-stage process (rule-based first, LLM-based second) with structured JSON output
+  - Clarifying question asks about purpose (curiosity vs study vs work vs fix)
   - Determines learning intent and suggested response style
 
 - **Planner**

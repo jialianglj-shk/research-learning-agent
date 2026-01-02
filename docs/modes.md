@@ -163,4 +163,4 @@ Planned enhancements include:
 - User-selectable mode overrides
 - Quizzzes and self-assessment steps
 - Spaced repetition integration
-- Continously update user profile automatically based on user interactions with the agent assistant to adpat user's personal learning style
+- Continously update user profile automatically based on user interactions with the agent assistant to adpat user's personal learning style.

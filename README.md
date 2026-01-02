@@ -28,18 +28,20 @@ Current capabilities include:
 - Accepts natural-language questions via CLI
 - Maintains a persistent **user profile** (background, goals, level, preferences)
 - Classifies **user intent** for each query:
-  - Casual curiosity
-  - Guided study
-  - Professional research
-  - Urgent troubleshooting
+  - Classify user's intent into:
+    - Casual curiosity
+    - Guided study
+    - Professional research
+    - Urgent troubleshooting
+  - Tww-stage system (heuristics -> LLM fallback) to avoid mode collapse and keep behavior stable
+  - Runs a clarification loop when needed (bounded turns), only to disambiguate _intent_ (why the user asks), not answer format.
+  - Falls back to best-effort answers with stated assunmptions when ambiguity remains
 - Generates an explicit multi-step plan before answering (inspectable)
-- Runs a clarificatino loop when needed (bounded turns), then procedds
-- Falls back to best-effort answers with stated assunmptions when ambiguity remains
+- Plans research steps with explicit tool calls (web_search, docs_search, video_search)
 - Adapts explanation style and depth based on:
   - User profile
   - Classified intent
 - Use structured schemas to ensure inspectable, debuggable behavior
-- Plans research steps with explicit tool calls (web_search, docs_search, video_search)
 - Executes tool calls (Serper + YouTube; web fallback Serper -> DDG IA)
 - Generates answers grounded in retrieved evidence
 - Attaches sources deterministically from tool results (no LLM-generated citations)
@@ -102,6 +104,12 @@ Each stage is explicit and inspectable, allowing the agent to evolve incremental
 
 For implementation details and design rationale, see:
 - [`docs/architecture.md`](docs/architecture.md)
+
+## Intent classification (query-first, two-stage)
+- Stage 1: rule-based signals (fast, stable)
+- Stage 2: LLM fallback only when uncertain
+- Confidence is calibrated (not raw LLM confidence)
+- Clarifying questions disambiguate _intent_, not output format
 
 ## Running the Agent (Day 4)
 
