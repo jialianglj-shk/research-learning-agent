@@ -13,7 +13,7 @@ from research_learning_agent.schemas import (
     LearningMode,
 )
 from research_learning_agent.memory import MemoryManager
-from research_learning_agent.store.memory_store import MemoryStore
+from research_learning_agent.stores.memory_store import MemoryStore
 
 
 def test_memory_manager_load_missing_returns_default_memory(tmp_path: Path) -> None:

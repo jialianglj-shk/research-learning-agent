@@ -5,7 +5,7 @@ from .schemas import (
     UserMemory, LearningMode, MemoryItem, UserPreferences, 
     ExplanationStyle, ResourcePreference, Verbosity
 )
-from .store.memory_store import MemoryStore
+from .stores.memory_store import MemoryStore
 from .logging_utils import get_logger
 
 

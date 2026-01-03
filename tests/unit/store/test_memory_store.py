@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from research_learning_agent.schemas import UserMemory
-from research_learning_agent.store.memory_store import MemoryStore
+from research_learning_agent.stores.memory_store import MemoryStore
 
 
 def test_memory_store_load_missing_returns_none(tmp_path: Path) -> None:
