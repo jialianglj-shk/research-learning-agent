@@ -99,8 +99,11 @@ class MemoryManager:
         return mem
 
     def build_prompt_context(self, mem: UserMemory) -> str:
+        if not mem.topics:
+            return ""
+
         # Keep this short. The generator prompt should not blow up.
-        recent_topics = ", ".join(mem.topics[max(-5, -MAX_HISTORY):]) if mem.topics else "none"
+        recent_topics = ", ".join(mem.topics[max(-5, -MAX_HISTORY):])
         prefs = mem.preferences
 
         return (

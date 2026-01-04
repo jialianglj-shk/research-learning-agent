@@ -2,19 +2,29 @@ import re
 
 from .schemas import (
     UserQuery, AgentAnswer, LLMMessage, UserProfile, IntentResult, Plan, ToolResult, 
-    SourceItem, GenerationSpec, AnswerSection
+    SourceItem, GenerationSpec, AnswerSection, UserMemory
 )
 from .llm_client import LLMClient
+from .memory import MemoryManager
 from .logging_utils import get_logger
 
 
 logger = get_logger("Generator")
 
 
+def _build_memory_context(memory: UserMemory) -> str:
+    memory_ctx = MemoryManager.build_memory_context(memory)
+    return memory_ctx[:800]
 
-def build_generator_prompt(
-    profile: UserProfile, intent_result: IntentResult, plan: Plan, evidence: str, 
-    sections_list: list[str], force_final: bool
+
+def _build_generator_prompt(
+    profile: UserProfile, 
+    intent_result: IntentResult, 
+    plan: Plan, 
+    evidence: str, 
+    sections_list: list[str], 
+    memory_ctx: str,
+    force_final: bool
 ) -> str:
     forced_instruction = ""
     if force_final:
@@ -27,10 +37,24 @@ YOU MUST:
 3) End with ONE follow-up question to confirm or refine assumptions.    
 """
 
+    # Keep memory block short; if empty, omit it entirely to save tokens
+    memory_block = ""
+    if memory_ctx.strip():
+        memory_block = f"""
+USER MEMORY (reliable context from prior sessions):
+{memory_ctx}
+
+Memory usage rules:
+- Treat the memory as true, but DO NOT invent facts beyond it.
+- Do not say "as we discussed before" unless memory mentions the topic explicitly.
+- If the current question overlaps with "Recent topics", skip beginner-level basics and go keeper, unless user explicitly asks for basics in the current question.
+- Follow preferences when reasonable (examples vs formulas, text vs video, verbosity).
+"""
+
     return f"""
 You are a learning/research assistant.
 
-User profile:
+User profile (may be imcomplete; prioritize the current query):
 - background: {profile.background}
 - Level: {profile.level}
 - Goals: {profile.goals}
@@ -39,6 +63,8 @@ User profile:
 Intent:
 - Intent: {intent_result.intent}
 - Suggested output: {intent_result.suggested_output}
+
+{memory_block}
 
 Plan:
 {plan.model_dump_json(indent=2)}
@@ -82,14 +108,23 @@ class Generator:
         self.llm = LLMClient()
     
     def generate(
-        self, query: UserQuery, profile: UserProfile, intent: IntentResult, 
-        plan: Plan, tool_results: list[ToolResult], spec: GenerationSpec,
-        *, force_final: bool = False
+        self, 
+        query: UserQuery, 
+        profile: UserProfile, 
+        intent: IntentResult, 
+        plan: Plan, 
+        tool_results: list[ToolResult], 
+        spec: GenerationSpec,
+        memory: UserMemory,
+        *, 
+        force_final: bool = False
     ) -> AgentAnswer:
         evidence = self._format_evidence(tool_results)
 
-        system_prompt = build_generator_prompt(
-            profile, intent, plan, evidence, spec.required_sections, force_final
+        memory_ctx = _build_memory_context(memory)
+        
+        system_prompt = _build_generator_prompt(
+            profile, intent, plan, evidence, spec.required_sections, memory_ctx, force_final
         )
 
         messages: list[LLMMessage] = [
