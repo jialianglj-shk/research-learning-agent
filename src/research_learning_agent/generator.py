@@ -5,7 +5,7 @@ from .schemas import (
     SourceItem, GenerationSpec, AnswerSection, UserMemory
 )
 from .llm_client import LLMClient
-from .memory import MemoryManager
+from .memory import MemoryManager, build_prompt_context
 from .logging_utils import get_logger
 
 
@@ -13,7 +13,7 @@ logger = get_logger("Generator")
 
 
 def _build_memory_context(memory: UserMemory) -> str:
-    memory_ctx = MemoryManager.build_memory_context(memory)
+    memory_ctx = build_prompt_context(memory)
     return memory_ctx[:800]
 
 

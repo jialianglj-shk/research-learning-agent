@@ -27,6 +27,22 @@ POS_CONCISE = re.compile(r"\b(brief|quick|tldr|overview|high[- ]level)\b", re.I)
 POS_DETAILED = re.compile(r"\b(detailed|in-depth|deep dive|deep)\b", re.I)
 
 
+def build_prompt_context(mem: UserMemory) -> str:
+    if not mem.topics:
+        return ""
+
+    # Keep this short. The generator prompt should not blow up.
+    recent_topics = ", ".join(mem.topics[max(-5, -MAX_HISTORY):])
+    prefs = mem.preferences
+
+    return (
+        f"USER_MEMORY:\n"
+        f"- Recent topics: {recent_topics}\n"
+        f"- Preferences: explanation_style={prefs.explanation_style.value}, resource_preference={prefs.resource_preference.value}, verbosity={prefs.verbosity.value}\n"
+        f"- Avoid repeating basics for topics the user already coverred.\n"
+    )
+
+
 def infer_preferences(mem: UserMemory, query: str) -> UserPreferences:
     q = query.lower()
 
@@ -98,17 +114,3 @@ class MemoryManager:
         
         return mem
 
-    def build_prompt_context(self, mem: UserMemory) -> str:
-        if not mem.topics:
-            return ""
-
-        # Keep this short. The generator prompt should not blow up.
-        recent_topics = ", ".join(mem.topics[max(-5, -MAX_HISTORY):])
-        prefs = mem.preferences
-
-        return (
-            f"USER_MEMORY:\n"
-            f"- Recent topics: {recent_topics}\n"
-            f"- Preferences: explanation_style={prefs.explanation_style.value}, resource_preference={prefs.resource_preference.value}, verbosity={prefs.verbosity.value}\n"
-            f"- Avoid repeating basics for topics the user already coverred.\n"
-        )
