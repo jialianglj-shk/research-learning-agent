@@ -3,7 +3,8 @@ import pytest
 from research_learning_agent.orchestrator import Orchestrator
 from research_learning_agent.schemas import (
     LearningIntent, IntentResult, LearningMode, GenerationSpec, UserProfile, 
-    AgentAnswer, AnswerSection, UserQuery, UserProfile, UserLevel, OrchestratorActionType
+    AgentAnswer, AnswerSection, UserQuery, UserProfile, UserLevel, OrchestratorActionType,
+    UserMemory,
 )
 
 
@@ -51,7 +52,7 @@ class CaptureGenerator:
     def __init__(self):
         self.last_spec = None
 
-    def generate(self, *, query, profile, intent, plan, tool_results, spec, force_final=False):
+    def generate(self, *, query, profile, intent, plan, tool_results, spec, memory, force_final=False):
         self.last_spec = spec
         return AgentAnswer(
             explanation="x",
@@ -61,7 +62,7 @@ class CaptureGenerator:
                 AnswerSection(title="Explanation", content="E"),
                 AnswerSection(title="Next Steps", content="N"),
             ],
-            sources=[]
+            sources=[],
         )
 
 def _get_minimul_inputs():

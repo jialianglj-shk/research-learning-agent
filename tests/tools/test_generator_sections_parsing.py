@@ -3,7 +3,8 @@ import pytest
 from research_learning_agent.generator import Generator
 from research_learning_agent.schemas import (
     AgentAnswer, AnswerSection, GenerationSpec, LearningMode, SourceItem, ToolResult, ToolType, 
-    UserProfile, UserQuery, IntentResult, Plan, UserLevel, LearningIntent, PlanStep, StepType
+    UserProfile, UserQuery, IntentResult, Plan, UserLevel, LearningIntent, PlanStep, StepType,
+    UserMemory,
     )
 from research_learning_agent.llm_client import LLMMessage
 
@@ -82,6 +83,7 @@ Try a simple Q-learning tutorial.
         plan=plan, 
         tool_results=tool_results, 
         spec=spec,
+        memory=UserMemory(),
         force_final=True
     )
 
@@ -133,6 +135,7 @@ Analogy text
         plan=plan, 
         tool_results=tool_results, 
         spec=spec,
+        memory=UserMemory(),
         force_final=True
     )
 

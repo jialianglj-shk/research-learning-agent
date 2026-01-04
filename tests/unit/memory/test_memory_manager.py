@@ -12,7 +12,7 @@ from research_learning_agent.schemas import (
     LearningIntent,
     LearningMode,
 )
-from research_learning_agent.memory import MemoryManager
+from research_learning_agent.memory import MemoryManager, build_prompt_context
 from research_learning_agent.stores.memory_store import MemoryStore
 
 
@@ -143,7 +143,7 @@ def test_build_prompt_context_includes_recent_topics_and_preferences(tmp_path: P
         verbosity=Verbosity.concise,
     )
 
-    ctx = mgr.build_prompt_context(mem)
+    ctx = build_prompt_context(mem)
 
     # Recent topics appear
     assert "rl basics" in ctx
