@@ -47,6 +47,7 @@ class AgentAnswer(BaseModel):
     # for new learning modes
     mode: LearningMode = LearningMode.quick_explain
     sections: list[AnswerSection] = Field(default_factory=list)
+    follow_up_questions: list[str] = Field(default_factory=list)
 
 class LLMMessage(BaseModel):
     """Message sent to the LLM."""

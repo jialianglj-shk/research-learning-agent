@@ -4,7 +4,8 @@ import re
 
 from .schemas import (
     UserQuery, AgentAnswer, UserProfile, StepType, OrchestratorActionType, 
-    OrchestratorAction, OrchestratorResult, ToolResult, Plan
+    OrchestratorAction, OrchestratorResult, ToolResult, Plan, UserMemory,
+    ResourcePreference
 )
 from .intent_classifier import IntentClassifier
 from .planner import Planner
@@ -66,6 +67,70 @@ def infer_topic(plan: Plan | None, query: str) -> str:
     # Fallback: use the query (cleaned)
     cleaned_query = _clean_topic(query)
     return cleaned_query or "unknown"
+
+
+def suggest_followups(mem: UserMemory | None, current_topic: str, *, max_items: int = 2) -> list[str]:
+    """
+    Generate 0..max_items follow-up questions bsed on memory + current topic.
+
+    Design goals:
+    - deterministic
+    - no LLM calls
+    - non-repetitive
+    - connect to prior topics when useful
+    """
+    if mem is None:
+        return []
+    if max_items <= 0:
+        return []
+    
+    cur = _clean_topic(current_topic)
+    if not cur:
+        return []
+    
+    topics = mem.topics or []
+    if not topics:
+        return []
+
+    # Normalize and preserve order
+    norm_topics = [_clean_topic(t) for t in topics if _clean_topic(t)]
+    if not norm_topics:
+        return []
+
+    out: list[str] = []
+
+    # 1) Connect to most recent *different* prior topic
+    # (usually mem.topics[-1] is last topic; but current may equal last after update,
+    # so we search backwards for a different one)
+    prev: str | None = None
+    for t in reversed(norm_topics):
+        if t != cur:
+            prev = t
+            break
+    
+    if prev:
+        out.append(f"Want to connect **{cur}** to what you learned earlier about **{prev}**?")
+
+    # 2) If user prefers video/text, suggest a next action (optional)
+    # Keep this generic; don't create tool calls here.
+    if len(out) < max_items:
+        prefs = getattr(mem, "preferences", None)
+        resource_pref = getattr(prefs, "resource_preference", None)
+
+        if resource_pref == ResourcePreference.video:
+            out.append(f"Want a short **video-first** next step for **{cur}** (5-10 min)")
+        elif resource_pref == ResourcePreference.text:
+            out.append(f"Want a **docs/articles-first** next step for **{cur}**?")
+
+    # Deduplicate and cap
+    dedup: list[str] = []
+    seen = set()
+    for x in out:
+        if x not in seen:
+            dedup.append(x)
+            seen.add(x)
+    
+    return dedup[:max_items]
 
 
 class Orchestrator:
@@ -145,6 +210,11 @@ class Orchestrator:
 
         # 8) infer topic and update memory
         topic = infer_topic(plan, query.question)
+
+        # 9) suggest follow-up questions
+        answer.follow_up_questions = suggest_followups(mem, topic, max_items=2)
+
+        # 10) update memory
         mem = self.memory.update_after_answer(
             mem,
             query=query.question,
