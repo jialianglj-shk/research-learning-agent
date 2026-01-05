@@ -14,6 +14,12 @@ wheels/
 .env.*
 !.env.example
 
+# Runtime memory
+data/user_memory.json
+
+# Evaluation outputs
+tests/results/intent_regression_runs/
+
 # Local data
 data/*.json
 data/*.db

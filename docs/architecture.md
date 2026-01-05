@@ -20,7 +20,11 @@ ToolExecutor (only for research steps)\
 ↓\
 Pedagogy (mode/spec)
 ↓\
-Generator -> Answer (sectioned output + sources)\
+Generator (memory aware)
+↓\
+Answer (sectioned output + sources)
+↓\
+Memory Update
 ↓\
 Structured Response
 
@@ -55,6 +59,12 @@ Structured Response
   - learning mode -> generation spec mapping
   - spec-driven generation
   - parseable output format
+
+- **Memory**
+  - Store recent topics and preferences
+  - Sotre summaries of recent interactions
+  - Infer preferences and context-aware follow-up suggestions when generate final answer
+  - Memory is kept small and safe
 
 - **Orchestrator**
   - Coordinates intent + plan -> generation pipeline
@@ -93,4 +103,28 @@ This architecture emphasizes **clarity, inspectability, and incremental evlution
 - agent contintues and answer best-effort
 - CLI prints tool errors (for debug)
 
+## Memory
+
+The system includes a light weight, persistent memory layer to support personalization across sessions.
+
+### What is sotred
+- **Recent topics** the user has studied (recency-ordered, capped)
+- **Interaction history** (short summaries, capped)
+- **Inferred preferences**:
+  - explanation style (examples / formulas / balanced)
+  - resource preference (video / text / mixed)
+  - verbosity (concise / balanced / detailed)
+
+### How memory is used
+- Injected into the generator prompt to:
+  - avoid repeating introductory explanations
+  - adapt tone and structure to user preferences
+- Used to generate **context-aware follow-up suggestions**
+- Optionally influences plannning decdisions (e.g., depth or resource bias) //TODO
+
+### How memory is kept small and safe
+- Stored as a compact local JSON file
+- History and topic lists are capped
+- No credentials or sensitive data stored
+- Memory is omitted from prompts when empty
 

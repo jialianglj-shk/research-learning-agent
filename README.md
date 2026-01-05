@@ -8,7 +8,7 @@ The long-term vision is to build **general agentic AI systems** that can reason,
 
 ## Project Status
 
-**Current stage:** Day 5 -- Integrating Learning Modes & Answer Styles
+**Current stage:** Day 6 -- Personalization and Context Adaption
 
 This initial version implements a **minimal but production-quality foundation**:
 - Clean project structure
@@ -18,8 +18,9 @@ This initial version implements a **minimal but production-quality foundation**:
 - Planning and clarification loop
 - Tool use and evidence citations
 - Adapting asnwer style and sepc based on learning intent
+- Maintain lightweight, persistent user memory
 
-Later weeks will add memory, and a web UI.
+Later weeks will add a web UI.
 
 ## What the Agent Does
 The agent is a CLI-based AI assistant that supports **personalized learning and research**.
@@ -110,6 +111,20 @@ For implementation details and design rationale, see:
 - Stage 2: LLM fallback only when uncertain
 - Confidence is calibrated (not raw LLM confidence)
 - Clarifying questions disambiguate _intent_, not output format
+
+## Personalization & Memory
+The assistant maintains lightweight, persistent user memory to improve responses over time.
+
+Key capabilities:
+- **Recent topic memory**: remembers what topics the user has already studied
+- **Preference adaption**: infers and respects preferences such as:
+  - examples vs formulas
+  - video vs text resources
+  - concise vs detailed explanation
+- **Avoids repeating basics** for topics the user has already covered
+- **Context-aware follow-up suggestions** that connect new topics to prior learning
+
+Memory is deterministic, compact, and fully testable. It augments generation without allow the LLM to control state.
 
 ## Running the Agent (Day 4)
 
