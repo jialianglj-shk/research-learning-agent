@@ -17,9 +17,11 @@ wheels/
 # Runtime memory
 data/user_memory.json
 
-# Evaluation outputs
+# Runtime logs / evaluation artifacts
+data/intent_events.jsonl
 tests/results/intent_regression_runs/
 
 # Local data
+data/*.jsonl
 data/*.json
 data/*.db
