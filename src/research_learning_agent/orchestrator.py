@@ -5,7 +5,7 @@ import re
 from .schemas import (
     UserQuery, AgentAnswer, UserProfile, StepType, OrchestratorActionType, 
     OrchestratorAction, OrchestratorResult, ToolResult, Plan, UserMemory,
-    ResourcePreference
+    ResourcePreference, UIResponse, UISourcesItem, UIResponseAction
 )
 from .intent_classifier import IntentClassifier
 from .planner import Planner
@@ -232,5 +232,42 @@ class Orchestrator:
             plan=plan,
             tool_results=tool_results,
         )
+    
+    def chat(self, *, session_id: str, message: str, profile: UserProfile, force_final: bool = False) -> UIResponse:
+        """
+        UI-friendly wrapper:
+        - accepts session_id + user message
+        - return a structured response the UI can render
+        """
+        # Just map seesion_id -> user_id for now (1:1)
+        user_id = session_id
 
+        res = self.run(UserQuery(question=message), profile, user_id, force_final=force_final)
+
+        # Build sources from res.answer.sources
+        sources = []
+        if res.answer and getattr(res.answer, "sources", None):
+            for source_item in res.answer.sources:
+                sources.append(UISourcesItem(title=source_item.title, url=source_item.url))
+        
+        followups = []
+        if res.answer and getattr(res.answer, "follow_up_questions", None):
+            followups = list[str](res.answer.follow_up_questions) # a shallower copy
+        
+        if res.kind == OrchestratorActionType.need_clarification:
+            action = UIResponseAction.clarify
+        else:
+            action = UIResponseAction.answer
+
+        return UIResponse(
+            session_id=session_id,
+            action=action,
+            mode=res.answer.mode if res.answer else None,
+            plan=res.plan,
+            answer=res.answer,
+            sources=sources,
+            followups=followups,
+        )
+        
+        
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Literal, Any
 from pydantic import BaseModel, Field
+from pydantic_core.core_schema import NoneSchema
 
 class UserQuery(BaseModel):
     """User query to the agent."""
@@ -189,3 +190,29 @@ class UserMemory(BaseModel):
     history: list[MemoryItem] = Field(default_factory=list)  # recent N items
     preferences: UserPreferences = Field(default_factory=UserPreferences)
     last_topic: str | None = None
+
+class UIMessageType(str, Enum):
+    user = "user"
+    assistant = "assistant"
+
+class UIMessage(BaseModel):
+    role: UIMessageType
+    content: str
+
+class UISourcesItem(BaseModel):
+    title: str | None = None
+    url: str
+
+class UIResponseAction(str, Enum):
+    clarify = "clarify"
+    answer = "answer"
+
+class UIResponse(BaseModel):
+    session_id: str
+    action: UIResponseAction
+    mode: LearningMode | None = None
+    plan: Plan | None = None
+    answer: AgentAnswer | None = None
+    sources: list[UISourcesItem] = Field(default_factory=list)
+    followups: list[str] = Field(default_factory=list)
+
