@@ -25,3 +25,6 @@ tests/results/intent_regression_runs/
 data/*.jsonl
 data/*.json
 data/*.db
+
+# local notes
+docs/dev-notes.md

@@ -215,4 +215,9 @@ class UIResponse(BaseModel):
     answer: AgentAnswer | None = None
     sources: list[UISourcesItem] = Field(default_factory=list)
     followups: list[str] = Field(default_factory=list)
+    clarifying_question: str | None = None
+
+class UIChatHistoryItem(BaseModel):
+    render_function_name: str
+    message_md: str
 

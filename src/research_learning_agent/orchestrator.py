@@ -254,10 +254,12 @@ class Orchestrator:
         if res.answer and getattr(res.answer, "follow_up_questions", None):
             followups = list[str](res.answer.follow_up_questions) # a shallower copy
         
-        if res.kind == OrchestratorActionType.need_clarification:
+        if res.action.kind == OrchestratorActionType.need_clarification:
             action = UIResponseAction.clarify
+            clarifying_question = res.action.clarifying_question
         else:
             action = UIResponseAction.answer
+            clarifying_question = None
 
         return UIResponse(
             session_id=session_id,
@@ -267,6 +269,7 @@ class Orchestrator:
             answer=res.answer,
             sources=sources,
             followups=followups,
+            clarifying_question=clarifying_question,
         )
         
         

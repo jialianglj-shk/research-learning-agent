@@ -126,7 +126,7 @@ Key capabilities:
 
 Memory is deterministic, compact, and fully testable. It augments generation without allow the LLM to control state.
 
-## Running the Agent (Day 4)
+## Running the Agent (Day 7)
 
 ### Prerequisites
 - `uv` installed
@@ -151,10 +151,16 @@ TOOL_TIMEOUT_SECONDS
 TOOL_MAX_RETRIES
 ```
 
-### Run
+### Run as CLI tool
 ```bash
 uv run python -m research_learning_agent.app_cli
 ```
+
+### Run UI
+```bash
+uv run streamlit run app/webui.py
+```
+
 On first run, the assistant will prompt for basic profile informaiton.
 
 Subsequent runs resue the saved profile automatically.
