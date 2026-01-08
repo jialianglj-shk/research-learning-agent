@@ -1,227 +1,285 @@
 # Personal Research & Learning Agent
 
-> A modular, agentic AI system for personalized learning, research, and problem-solving.
+> A modular, agentic AI tool for personalized learning, research, and problem-solving.
 
-This project explores how modern LLMs can be orchestrated into **goal-aware, step-based learning agents** that adapt to a user's intent, background, and preferred learning style.
+This project explores how modern LLMs can be orchestrated into **goal-aware, step-based learning agents** that adapt to a user’s **intent**, **background**, and **learning preferences**.
 
-The long-term vision is to build **general agentic AI systems** that can reason, plan, use tools, and eventually interface with real-world robotic systems.
 
 ## Project Status
 
-**Current stage:** Day 6 -- Personalization and Context Adaption
+**Current version:** `v0.2.0`\
+**Milestone:** Product MVP — Orchestration + Tools + Memory + Web UI
 
-This initial version implements a **minimal but production-quality foundation**:
-- Clean project structure
-- Modern Python tooling
-- A working CLI-based AI assistant
-- Strong typing and schemas for future expansion
-- Planning and clarification loop
-- Tool use and evidence citations
-- Adapting asnwer style and sepc based on learning intent
-- Maintain lightweight, persistent user memory
+This version delivers a **production-quality foundation** with:
 
-Later weeks will add a web UI.
+* Clean, modular project structure
+* Explicit orchestration and planning pipeline
+* Tool-backed research with deterministic citations
+* Learning modes and adaptive answer styles
+* Lightweight, persistent user memory
+* CLI and Web UI interfaces
+* Workflow export for demos and evaluation
+
+
+## Screenshots / Demo
+
+> **Coming soon**\
+> (Will add 1–2 screenshots or a short GIF of the Web UI)
+
 
 ## What the Agent Does
-The agent is a CLI-based AI assistant that supports **personalized learning and research**.
 
-Current capabilities include:
-- Accepts natural-language questions via CLI
-- Maintains a persistent **user profile** (background, goals, level, preferences)
-- Classifies **user intent** for each query:
-  - Classify user's intent into:
-    - Casual curiosity
-    - Guided study
-    - Professional research
-    - Urgent troubleshooting
-  - Tww-stage system (heuristics -> LLM fallback) to avoid mode collapse and keep behavior stable
-  - Runs a clarification loop when needed (bounded turns), only to disambiguate _intent_ (why the user asks), not answer format.
-  - Falls back to best-effort answers with stated assunmptions when ambiguity remains
-- Generates an explicit multi-step plan before answering (inspectable)
-- Plans research steps with explicit tool calls (web_search, docs_search, video_search)
-- Adapts explanation style and depth based on:
-  - User profile
-  - Classified intent
-- Use structured schemas to ensure inspectable, debuggable behavior
-- Executes tool calls (Serper + YouTube; web fallback Serper -> DDG IA)
-- Generates answers grounded in retrieved evidence
-- Attaches sources deterministically from tool results (no LLM-generated citations)
-- Intent-driven **Learning Modes**
-- Mode outputs: Quick Explain / Guided Study / Deep Research / Fix my Problem
-- Returns:
-  - A clear explanation
-  - A concise bullet-point summary
-  - A sections section with different spec based on learning mode
-  - A sources section
+The agent is an AI assistant for **personalized learning and research**, designed as an explicit, inspectable system rather than a single prompt.
 
-The assistant is designed to evolve incrementally into a fully agentic system with planning, tool use, and long-term memory.
+### Core capabilities
 
-Example:
+* Accepts natural-language questions via **CLI** or **Web UI**
+* Maintains a persistent **user profile**:
+  * background
+  * goals
+  * level
+  * preferences
+* Classifies **user intent** per query:
+  * Casual curiosity
+  * Guided study
+  * Professional research
+  * Urgent troubleshooting
+* **Two-stage intent system**:
+  * Heuristic-first classification (fast, stable)
+  * LLM fallback only when uncertain (avoids mode collapse)
+* Runs a **bounded clarification loop** when needed:
+  * Clarifies *why* the user is asking
+  * Not about formatting preferences
+  * Falls back to best-effort answers with stated assumptions
+* Generates an explicit **multi-step plan** before answering (inspectable)
+* Plans research steps with structured tool calls:
+  * web search
+  * documentation search
+  * video search
+* Executes tools with retries and graceful failure handling
+* Grounds answers in retrieved evidence
+* Attaches **sources deterministically from tool results**
+  * No LLM-generated citations
+* Intent-driven **Learning Modes**:
+  * Quick Explain
+  * Guided Study
+  * Deep Research
+  * Fix My Problem
+* Returns structured output:
+  * Clear explanation
+  * Bullet-point summary
+  * Mode-specific sections
+  * Sources
+  * Follow-up suggestions
+
+### Example interaction
+
 ```markdown
 > What is reinforcement learning?
 
-Do you want a concise overview or detailed explanation?
-> overview
+Do you want a high-level overview or are you studying this for work?
 
-Explanation:
+> Just an overview.
+
+### Explanation
 <2–5 paragraph explanation>
 
-Bullets:
-1. ...
-2. ...
+### Key takeaways
+- ...
+- ...
 
-Sections:
+### Detailed explanation
 <section 1>
 <section 2>
 
-Sources:
-1. ...
-2. ...
+### Sources
+- ...
+- ...
 ```
 
-## Tech Stack
-- **Python:** 3.13 (explicitly pinned)
-- **Environment & Dependency Management:** `uv`
-- **LLM Provider:** OpenAI (Chat Completions API)
-- **Data Modeling:** Pydantic
-- **CLI Rendering:** Rich
-- **IDE:** Cursor (AI-assisted development)
+
+## Personalization & Memory
+
+The assistant maintains **lightweight, persistent user memory** to improve responses over time.
+
+Key behaviors:
+* **Recent topic memory** — tracks what the user has already studied
+* **Preference adaptation** — infers and respects:
+  * examples vs formulas
+  * video vs text resources
+  * concise vs detailed explanations
+* **Avoids repeating basics** for previously covered topics
+* **Context-aware follow-up suggestions** that connect new topics to prior learning
+
+Memory is:
+* deterministic
+* compact
+* fully testable
+* injected into prompts only when it adds signal
+
+The LLM never directly controls memory state.
+
 
 ## High-Level Architecture
 
-The system is designed as a modular, schema-driven agent pipeline:
+The system is designed as a **schema-driven, modular agent pipeline**:
 
-- User Input
-- Profile & Context
-- Intent Classification
-- Planner (structured plan)
-- Orchestrator (clarify loop / execution control)
-- ToolExecutor
-- Pedogagy (decide asnwer spec)
-- Generator (final response)
-- Structured Output
+* User Input
+* Profile & Memory
+* Intent Classification
+* Pedagogy (mode selection)
+* Planner (structured plan)
+* Orchestrator (clarification & execution control)
+* Tool Executor
+* Generator (memory-aware)
+* Structured Output
+* Memory Update
 
-Each stage is explicit and inspectable, allowing the agent to evolve incrementally toward planning, tool use, and long-term personalization.
+Each stage is explicit and inspectable, enabling incremental evolution toward more advanced agentic behavior.
 
-For implementation details and design rationale, see:
-- [`docs/architecture.md`](docs/architecture.md)
+For design rationale and diagrams, see:
+[`docs/architecture.md`](docs/architecture.md)
 
-## Intent classification (query-first, two-stage)
-- Stage 1: rule-based signals (fast, stable)
-- Stage 2: LLM fallback only when uncertain
-- Confidence is calibrated (not raw LLM confidence)
-- Clarifying questions disambiguate _intent_, not output format
 
-## Personalization & Memory
-The assistant maintains lightweight, persistent user memory to improve responses over time.
+## Intent Classification (Query-first, Two-stage)
 
-Key capabilities:
-- **Recent topic memory**: remembers what topics the user has already studied
-- **Preference adaption**: infers and respects preferences such as:
-  - examples vs formulas
-  - video vs text resources
-  - concise vs detailed explanation
-- **Avoids repeating basics** for topics the user has already covered
-- **Context-aware follow-up suggestions** that connect new topics to prior learning
+* Stage 1: rule-based signals (fast, stable)
+* Stage 2: LLM fallback only when uncertainty remains
+* Confidence is calibrated (not raw LLM confidence)
+* Clarifying questions disambiguate **intent**, not output format
 
-Memory is deterministic, compact, and fully testable. It augments generation without allow the LLM to control state.
+
+## Tools
+
+* **Web search**: Serper (primary), DuckDuckGo Instant Answer (fallback)
+* **Video search**: YouTube Data API v3
+* **Docs search**: Serper with `site:` queries
+  (e.g. `site:docs.python.org`, `site:docs.ros.org`)
+* **Failure handling**:
+  * timeouts
+  * retries
+  * tool failures never crash the agent
+
 
 ## Running the Agent (CLI)
 
 ### Prerequisites
-- `uv` installed
-- OpenAI API key
+
+* `uv` installed
+* OpenAI API key
 
 ### Setup
+
 ```bash
 # from project root
 uv python pin 3.13
 uv sync
 ```
+
 Create a `.env` file:
+
 ```env
-# mandatory:
+# required
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4.1-mini
 SERPER_API_KEY=
 YOUTUBE_API_KEY=
 
-# optional:
-TOOL_TIMEOUT_SECONDS
-TOOL_MAX_RETRIES
+# optional
+TOOL_TIMEOUT_SECONDS=
+TOOL_MAX_RETRIES=
 ```
 
-### Run as CLI tool
+### Run (CLI)
+
 ```bash
 uv run python -m research_learning_agent.app_cli
 ```
 
-On first run, the assistant will prompt for basic profile informaiton.
+On first run, the assistant will prompt for basic profile information.
+Subsequent runs reuse the saved profile automatically.
 
-Subsequent runs resue the saved profile automatically.
-
-The agent may ask up to a few clarifying questions before producing the final answer.
-
-## Tools
-
-- **Web search**: Serper (primary), DuckDuckGo Instant Answer (fallback)
-- **Video search**: YouTube Data API v3
-- **Docs search**: Serper with `site:` queries (e.g., `site:docs.python.org`,`site:docs.ros.org`)
-- **Failure handling**: timeouts + retries; tool failures don't crash the agent
 
 ## Web UI
 
-A Streamlit-based web interface is provided to interact with the agent as a product.
+A Streamlit-based web interface exposes the agent as a **product-like experience**.
 
 Features:
-- Chat-style intergace (user / assistant)
-- Mode indicator (Quick explain, Guided Study, etc.)
-- Optional plan display (toggle in sidebar)
-- Source links panel
-- Persistent session memory
-- Clarification loop handled in UI
-- Workflow export for demo and review
+* Chat-style interface (user / assistant)
+* Mode indicator (Quick Explain, Guided Study, etc.)
+* Optional plan inspection (sidebar toggle)
+* Source links panel
+* Persistent session memory
+* Clarification loop handled in UI
+* Workflow export for demo and review
 
 ### Run the Web UI
+
 ```bash
 uv run streamlit run app/webui.py
 ```
 
-## Why This Project Exists
-This project is part of a longer-term transition toward **applied agentic AI**, with goals including:
-- Multi-step reasoning and planning
-- Tool use(web, documents, video, code)
-- Personalization and long-term memory
-- Human-AI collaboration workflows
-Eventual extension toward **robotic and embodied AI system**
+
+## Workflows
+
+Chat sessions can be exported as **reproducible workflow JSON files**.
+
+* Triggered via **“Save session”** in the UI sidebar
+* Stored in `app/workflows/`
+* Intended for:
+  * demos
+  * regression review
+  * design discussion
+
+Each workflow includes:
+* session metadata
+* ordered user / assistant messages
+* rendered assistant output (flattened markdown)
 
 
 ## Roadmap (High-Level)
-- [x] **Day 1:** Core agent skelenton and CLI
-- [x] **Day 2:** User intent classification & profiling
-- [x] **Day 3:** Planner module (reasoning about steps)
-- [x] **Day 4:** Tool integration (web, docs, videos)
-- [x] **Day 5:** Learning modes & teaching methods
-- [x] **Day 6:** Personalization & memory
-- [x] **Day 7:** Orchestration + web UI
-- [ ] **Day 8:** Evaluation, refinement, and portfolio polish
+
+* [x] **Day 1:** Core agent skeleton & CLI
+* [x] **Day 2:** User intent classification & profiling
+* [x] **Day 3:** Planner module (reasoning about steps)
+* [x] **Day 4:** Tool integration (web, docs, videos)
+* [x] **Day 5:** Learning modes & teaching strategies
+* [x] **Day 6:** Personalization & memory
+* [x] **Day 7:** Orchestration + Web UI
+* [ ] **Day 8:** Evaluation, refinement, and portfolio polish
 
 Each stage builds on the same codebase.
 
+
+## Why This Project Exists
+
+This project supports a longer-term transition toward **applied agentic AI**, with goals including:
+
+* Multi-step reasoning and planning
+* Tool use (web, documents, video, code)
+* Personalization and long-term memory
+* Human–AI collaboration workflows
+
+
 ## Design Philosophy
-- Architecture > hacks
-- Clarity > cleverness
-- Explicit schemas over ad-hoc strings
-- Incremental agent evolution
-- Treat AI as a system component, not a magic box
 
-## Notes on AI-Assited Development
-AI tools (e.g., Cursor, Claude Code, ChatGPT) are used **intentionally**:
-- To accelerate biolerplate and refactoring
-- While product features, architectural decisions, interfaces, and system design remain human-driven
+* Architecture > hacks
+* Clarity > cleverness
+* Explicit schemas over ad-hoc strings
+* Incremental agent evolution
+* Treat AI as a system component, not a magic box
 
-This mirrors how morden AI teams build real systems.
+
+## Notes on AI-Assisted Development
+
+AI tools (e.g. Cursor, Claude Code, ChatGPT) are used **intentionally**:
+
+* To accelerate boilerplate and refactoring
+* While product features, architectural decisions, interfaces, and system design remain human-driven
+
+This mirrors how modern AI teams build real systems.
+
 
 ## License
-MIT
 
+MIT
