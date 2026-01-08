@@ -4,11 +4,13 @@ import uuid
 import traceback
 import streamlit as st
 from typing import Callable
+from pathlib import Path
 
 from research_learning_agent.orchestrator import Orchestrator
 from research_learning_agent.schemas import (
     UserProfile, UserLevel, OutputPreference, ResourcePreference, UIResponseAction, UIChatHistoryItem, AgentAnswer
 )
+from research_learning_agent.workflows import save_workflow
 from research_learning_agent.logging_utils import get_logger
 
 from dotenv import load_dotenv
@@ -232,6 +234,26 @@ def _reset_clarification_state() -> None:
     st.session_state.prompt = PROMPT_DEFAULT
 
 
+def _sidebar_workflows() -> None:
+    st.sidebar.header("Workflows")
+
+    if "workflow_title" not in st.session_state:
+        st.session_state.workflow_title = "Demo session"
+
+    title = st.sidebar.text_input("Workflow title", value = st.session_state.workflow_title)
+    st.session_state.workflow_title = title
+
+    if st.sidebar.button("Save session"):
+        workflows_dir = Path("app/workflows")
+        path = save_workflow(
+            workflows_dir=workflows_dir,
+            title=title,
+            session_id=st.session_state.session_id,
+            messages=st.session_state.messages,
+        )
+        st.sidebar.success(f"Session saved to {path.as_posix()}")
+
+
 def main() -> None:
     st.set_page_config(page_title="Research Learning Agent", layout="wide")
     _init_state()
@@ -239,6 +261,7 @@ def main() -> None:
     st.title("Personal Research & Learning Agent")
 
     profile = _sidebar_profile()
+    _sidebar_workflows()
     orch = Orchestrator()
 
     # Render history first - this ensures all previous messages are displayed

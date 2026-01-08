@@ -4,7 +4,7 @@ from research_learning_agent.orchestrator import Orchestrator
 from research_learning_agent.schemas import (
     LearningIntent, IntentResult, LearningMode, GenerationSpec, UserProfile, 
     AgentAnswer, AnswerSection, UserQuery, UserProfile, UserLevel, OrchestratorActionType,
-    UserMemory,
+    UserMemory, Plan, PlanStep, StepType,
 )
 
 
@@ -26,6 +26,18 @@ class FakeIntent:
     
     def classify(self, question, profile):
         return IntentResult(intent=self.intent, confidence=0.9, rationale="x")
+
+
+class FakePlanner:
+    """Returns a minimal valid Plan for testing."""
+    def create_plan(self, question, profile, intent):
+        return Plan(
+            goal=f"Learn: {question}",
+            intent=intent.intent,
+            steps=[
+                PlanStep(step_id="s1", type=StepType.finalize, description="finalize"),
+            ],
+        )
 
 
 class CapturePedagogy:
@@ -81,6 +93,7 @@ def test_orchestrator_calls_pedagogy_and_passes_spec_to_generator():
 
     # Inject fakes
     orch.intent = FakeIntent(LearningIntent.guided_study)
+    orch.planner = FakePlanner()
     
     ped = CapturePedagogy(mode=LearningMode.guided_study)
     orch.pedagogy = ped
@@ -120,6 +133,7 @@ def test_orchestrator_calls_pedagogy_and_passes_spec_to_generator():
 def test_orchestrator_mode_mapping_via_pedagogy(learning_intent, expected_mode):
     orch = Orchestrator()
     orch.intent = FakeIntent(intent=learning_intent)
+    orch.planner = FakePlanner()
 
     ped = CapturePedagogy(mode=expected_mode)
     orch.pedagogy = ped
