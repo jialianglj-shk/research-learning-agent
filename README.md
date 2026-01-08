@@ -126,7 +126,7 @@ Key capabilities:
 
 Memory is deterministic, compact, and fully testable. It augments generation without allow the LLM to control state.
 
-## Running the Agent (Day 7)
+## Running the Agent (CLI)
 
 ### Prerequisites
 - `uv` installed
@@ -156,11 +156,6 @@ TOOL_MAX_RETRIES
 uv run python -m research_learning_agent.app_cli
 ```
 
-### Run UI
-```bash
-uv run streamlit run app/webui.py
-```
-
 On first run, the assistant will prompt for basic profile informaiton.
 
 Subsequent runs resue the saved profile automatically.
@@ -174,6 +169,23 @@ The agent may ask up to a few clarifying questions before producing the final an
 - **Docs search**: Serper with `site:` queries (e.g., `site:docs.python.org`,`site:docs.ros.org`)
 - **Failure handling**: timeouts + retries; tool failures don't crash the agent
 
+## Web UI
+
+A Streamlit-based web interface is provided to interact with the agent as a product.
+
+Features:
+- Chat-style intergace (user / assistant)
+- Mode indicator (Quick explain, Guided Study, etc.)
+- Optional plan display (toggle in sidebar)
+- Source links panel
+- Persistent session memory
+- Clarification loop handled in UI
+- Workflow export for demo and review
+
+### Run the Web UI
+```bash
+uv run streamlit run app/webui.py
+```
 
 ## Why This Project Exists
 This project is part of a longer-term transition toward **applied agentic AI**, with goals including:
@@ -183,16 +195,15 @@ This project is part of a longer-term transition toward **applied agentic AI**, 
 - Human-AI collaboration workflows
 Eventual extension toward **robotic and embodied AI system**
 
-Day 1 focuses on correctness, structure, and clarity -- not features.
 
 ## Roadmap (High-Level)
 - [x] **Day 1:** Core agent skelenton and CLI
 - [x] **Day 2:** User intent classification & profiling
 - [x] **Day 3:** Planner module (reasoning about steps)
 - [x] **Day 4:** Tool integration (web, docs, videos)
-- [ ] **Day 5:** Learning modes & teaching methods
-- [ ] **Day 6:** Personalization & memory
-- [ ] **Day 7:** Orchestration + web UI
+- [x] **Day 5:** Learning modes & teaching methods
+- [x] **Day 6:** Personalization & memory
+- [x] **Day 7:** Orchestration + web UI
 - [ ] **Day 8:** Evaluation, refinement, and portfolio polish
 
 Each stage builds on the same codebase.

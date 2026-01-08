@@ -151,20 +151,55 @@ Enhance user_profile + add memory
 - Have a **persistent, evolving personal tutor**, not just a one-off answer bot.
 
 **Day 6 - Definition of Done**
-1. [ ] Persistent **user memory** implemented (topics, history, preferences)
-2. [ ] Memory stored locally and **survivces multiple runs**
-3. [ ] Orchestrator:
+1. [x] Persistent **user memory** implemented (topics, history, preferences)
+2. [x] Memory stored locally and **survivces multiple runs**
+3. [x] Orchestrator:
   - loads memory at start
   - injects memory context into generator
   - updates and saves memory after final answer
-4. [ ] Generator output is **memory-aware**:
+4. [x] Generator output is **memory-aware**:
   - avoids repeating basics for known topics
   - adpats tone/style using stored preferences
-5. [ ] User preferences inferred deterministically (examples vs formulas, video vs text, concise vs detailed)
-6. [ ] Context-aware **follow-up suggestions** generated when applicable
-7. [ ] Unit tests added for(memory store, memory update logic, preference inference)
-8. [ ] Integration test confirm:
+5. [x] User preferences inferred deterministically (examples vs formulas, video vs text, concise vs detailed)
+6. [x] Context-aware **follow-up suggestions** generated when applicable
+7. [x] Unit tests added for(memory store, memory update logic, preference inference)
+8. [x] Integration test confirm:
  - memory passed through orchestrator -> generator
  - memory updated after interaction
-9. [ ] all existing tests pass
-10. [ ] Docs updated: `architectured.md`, `README.md`, `day6_eval.md`
+9. [x] all existing tests pass
+10. [x] Docs updated: `architectured.md`, `README.md`, `day6_eval.md`
+
+## Day 7 - Orchestration & UI
+
+**Goal**: Turn all modules into a single **coherent system** + simple UI.
+
+**Flow in** `orchestrator`
+1. Receive user query + session ID
+2. Load/update user profile & memory
+3. Run intent classification
+4. Run planner to create multi-step plan
+5. Execute tools according to plan
+6. Pass gathered info to pedagogy module
+7. Generate output in appropriate style
+8. Update memory with new topic + preferences
+
+**UI**:
+- Chat interface
+- Mode indicator ("Quick explain", "Guided study", etc.)
+- Disply plan outline before or alongside final answer (optional toggle)
+- Panel showing sources used (links, titles)
+
+**End of Day 7**
+- Have a working "Personal Research & Study Agent" web app.
+- All previous work is integrated into this single experience.
+
+**Day 7 Definition of Done**
+1. [x] `uv run streamlit run app/webui.py` lanches a working web app
+2. [x] Chat works end-to-end using real orchestrator
+3. [x] UI shows:
+  - mode indicator
+  - optional plan (toggle)
+  - sources list
+4. [x] Memory persists between messages in the same session_id
+5. [x] `READMD.md` includes run instructions for both CLI and Web UI
+6. [x] 2-3 demo workflows saved under `app/workflows/`

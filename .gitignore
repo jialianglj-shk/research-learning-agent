@@ -20,6 +20,8 @@ data/user_memory.json
 # Runtime logs / evaluation artifacts
 data/intent_events.jsonl
 tests/results/intent_regression_runs/
+app/workflows/*.json
+!app/workflows/*.sample.json
 
 # Local data
 data/*.jsonl

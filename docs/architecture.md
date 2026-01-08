@@ -2,31 +2,27 @@
 
 This project is designed as a **modular agentic AI system** that evolves incrementally.
 
-## Day 3 Architecture (Planner + Orchestrator Loop)
+## High-level Flow (Day 7)
 
-User (CLI)\
-↓\
-Profile Loader / Onboarding\
-↓\
-Intent Classifier (LLM-based)\
-↓\
-Planner (Plan JSON)\
-↓\
-Orchestrator (control flow)\
-├─ if needs clarification -> ask user enrich question -> loop back to IntentClassifier (bounded)\
-└─ else continue\
-↓\
-ToolExecutor (only for research steps)\
-↓\
-Pedagogy (mode/spec)
-↓\
-Generator (memory aware)
-↓\
-Answer (sectioned output + sources)
-↓\
+Web UI (Streamlit)
+        ↓
+    Orchestrator
+        ↓
+Profile + Memory + Query
+        ↓
+Intent Classification
+        ↓
+Pedagogy (mode selection)
+        ↓
+Planner
+        ↓
+Tools
+        ↓
+Generator (memory-aware)
+        ↓
+Answer + Sources + Follow-ups
+        ↓
 Memory Update
-↓\
-Structured Response
 
 
 ### Core Components
@@ -127,4 +123,27 @@ The system includes a light weight, persistent memory layer to support personali
 - History and topic lists are capped
 - No credentials or sensitive data stored
 - Memory is omitted from prompts when empty
+
+## UI Layer
+
+The Stremlit Web UI acts as a thin presentaiton layer.
+
+Responsibilities:
+- Collect user input
+- Render chat history
+- Display mode, plan, sources, and follow-ups
+- Handle clarification loops
+- Export workflows
+
+The UI does not contain business logic.
+
+All reasoning and decision-making live in the orchestrator.
+
+## Workflow Export
+
+The system supports exporting full chat sessions as JSON workflows.
+- Implemented as a pure helper (`workflows.py`)
+- Triggered from the UI
+- Produces deterministic, readable artifacts
+- Stored outside `/src` to avoid mixing runtime artifacts with core logic
 
